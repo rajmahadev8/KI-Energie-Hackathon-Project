@@ -1,0 +1,71 @@
+# Indicative 2026 German PV component prices — ROUGH RANGES, NOT a binding offer.
+# Sources (retrieved 2026-06-17): volt-e.de, 42watt.de, energie-experten.org, photovoltaik.org
+# (Photovoltaik-Kosten 2026). Turnkey residential PV ≈ 1,200–1,800 €/kWp; modules ~240–400 €/kWp;
+# inverter 500–2,000 €; mounting 500–1,500 €; installation ≈ 40% of total; battery 600–900 €/kWh.
+module:
+  wp: 430
+  area_m2: 1.95
+  kwp_per_m2_usable: 0.19      # usable kWp per m² roof (incl. spacing/keep-out)
+as_of: "2026-06-17"
+source_note: "Richtwerte 2026 (DE), grobe Spannen – kein verbindliches Angebot"
+
+# Each component: how it scales (per_kwp / per_module / flat), price low..high (EUR), icon, and an
+# optional condition. Quantities + costs are computed per configuration in configurator.py.
+components:
+  - key: modules
+    label: "PV modules (~430 Wp)"
+    label_de: "PV-Module (~430 Wp)"
+    icon: solararray
+    sizing: per_kwp
+    low: 240
+    high: 400
+  - key: inverter
+    label: "Inverter"
+    label_de: "Wechselrichter"
+    icon: inverter
+    sizing: per_kwp
+    low: 120
+    high: 220
+  - key: mounting
+    label: "Mounting system (roof)"
+    label_de: "Unterkonstruktion (Dach)"
+    icon: solararray
+    sizing: per_module
+    low: 40
+    high: 90
+  - key: wiring
+    label: "Electrical installation (DC/AC, cabling)"
+    label_de: "Elektroinstallation (DC/AC, Verkabelung)"
+    icon: meterbox
+    sizing: per_kwp
+    low: 120
+    high: 200
+  - key: surge_grounding
+    label: "Surge protection + grounding"
+    label_de: "Überspannungsschutz + Erdung"
+    icon: surgeprotector
+    sizing: flat
+    low: 300
+    high: 600
+  - key: smart_meter
+    label: "Smart meter / metering concept"
+    label_de: "Smart Meter / Messkonzept"
+    icon: router
+    sizing: flat
+    low: 100
+    high: 300
+    condition: kwp_gt_7            # intelligent metering system required above 7 kWp
+  - key: install_labor
+    label: "Installation, scaffolding, commissioning"
+    label_de: "Montage, Gerüst, Inbetriebnahme"
+    icon: grounding
+    sizing: per_kwp
+    low: 350
+    high: 550
+  - key: planning_registration
+    label: "Planning, grid + MaStR registration, docs"
+    label_de: "Planung, Netz- + MaStR-Anmeldung, Doku"
+    icon: meterbox
+    sizing: flat
+    low: 150
+    high: 400

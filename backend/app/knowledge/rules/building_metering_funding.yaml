@@ -1,0 +1,141 @@
+# Building law (NBauO Lower Saxony), metering (MsbG) and funding (KfW).
+
+- id: nbauo-pv-verfahrensfrei
+  topic: building_law
+  title: "NBauO: roof PV on a single-family home is exempt from a building permit"
+  title_de: "NBauO: Dach-PV am Einfamilienhaus ist verfahrensfrei"
+  statement: >-
+    In Niedersachsen (Lower Saxony), solar installations in, on and attached to roof and exterior-wall surfaces of
+    buildings (excluding high-rises) are exempt from a permit procedure (§ 60 in conjunction with the Annex to the NBauO,
+    § 32a NBauO) — so for a roof-parallel PV system on a single-family home, NO building permit is generally required.
+  statement_de: >-
+    In Niedersachsen sind Solaranlagen in, an und auf Dach- und Außenwandflächen von Gebäuden (keine
+    Hochhäuser) verfahrensfrei (§ 60 i. V. m. Anhang NBauO, § 32a NBauO) — für eine dachparallele
+    PV-Anlage auf einem Einfamilienhaus ist also in der Regel KEINE Baugenehmigung erforderlich.
+  status: valid
+  valid_from: "2012-01-01"
+  applies_if:
+    measure: [pv]
+    state: ["NI"]
+    building_type: [single_family, two_family, multi_family]
+  value:
+    permit_required: false
+  uncertainties:
+    - "Exceptions: heritage protection, buildings in the outdoor area, special municipal design statutes."
+  uncertainties_de:
+    - "Ausnahmen: Denkmalschutz, Bauten im Außenbereich, besondere Gestaltungssatzungen der Kommune."
+  review_needed: "In case of heritage protection / preservation statute, check for a separate permit from the municipality."
+  review_needed_de: "Bei Denkmalschutz/Erhaltungssatzung gesonderte Genehmigung der Kommune prüfen."
+  source:
+    name: "NBauO Anhang (zu § 60 Abs. 1) — verfahrensfreie Baumaßnahmen (Solaranlagen auf Dächern)"
+    url: "https://voris.wolterskluwer-online.de/browse/document/ac680a18-a0da-381f-b48c-3913ddd3a00a"
+    type: law
+    legal_status: "in force (current version)"
+    as_of: "2025-01-01"
+    retrieved: "2026-06-17"
+  tags: [nbauo, baurecht, verfahrensfrei, niedersachsen]
+
+- id: nbauo-pv-pflicht-neubau
+  topic: building_law
+  title: "NBauO § 32a: mandatory PV for new builds (Niedersachsen, since 2025)"
+  title_de: "NBauO § 32a: PV-Pflicht bei Neubau (Niedersachsen, seit 2025)"
+  statement: >-
+    Since 2025-01-01, a PV obligation applies in Niedersachsen: new buildings with at least 50 m²
+    of roof area must have at least 50% of the roof area covered with a photovoltaic system;
+    this also applies gradually to certain fundamental roof renovations of existing buildings.
+  statement_de: >-
+    Seit 01.01.2025 gilt in Niedersachsen eine PV-Pflicht: Bei Neubauten mit mindestens 50 m²
+    Dachfläche müssen mindestens 50 % der Dachfläche mit einer Photovoltaikanlage belegt werden;
+    schrittweise gilt dies auch bei bestimmten grundlegenden Dachsanierungen im Bestand.
+  status: valid
+  valid_from: "2025-01-01"
+  applies_if:
+    measure: [pv]
+    state: ["NI"]
+  value:
+    min_roof_area_m2: 50
+    min_coverage_percent: 50
+  uncertainties:
+    - "Transition periods / applicability to existing-building renovation are gradual; exceptions (economic viability) possible."
+  uncertainties_de:
+    - "Übergangsfristen/Geltung für Bestandssanierung schrittweise; Ausnahmen (Wirtschaftlichkeit) möglich."
+  review_needed: "Check whether the new build / roof renovation falls under the obligation (cut-off date, roof area)."
+  review_needed_de: "Prüfen, ob Neubau/Dachsanierung unter die Pflicht fällt (Stichtag, Dachfläche)."
+  source:
+    name: "NBauO § 32a — Solarenergieanlagen zur Stromerzeugung auf Dächern (PV-Pflicht, Fassung ab 2025)"
+    url: "https://voris.wolterskluwer-online.de/browse/document/f056c189-2143-307d-9a85-eb5d10b7fa52"
+    type: law
+    legal_status: "in force (current version)"
+    as_of: "2025-01-01"
+    retrieved: "2026-06-17"
+  tags: [nbauo, pv-pflicht, neubau, niedersachsen]
+
+- id: msbg-smartmeter-pflicht
+  topic: metering
+  title: "MsbG: intelligent metering system (smart meter) for PV > 7 kW"
+  title_de: "MsbG: intelligentes Messsystem (Smart Meter) für PV > 7 kW"
+  statement: >-
+    Under the Metering Point Operation Act (MsbG) and the Solarspitzengesetz, an intelligent metering system with
+    controllability must be provided for new PV systems above 7 kW (as well as for § 14a systems and high
+    electricity consumption). Only with it does the 60% feed-in limit no longer apply.
+  statement_de: >-
+    Nach dem Messstellenbetriebsgesetz (MsbG) und dem Solarspitzengesetz ist für neue PV-Anlagen über
+    7 kW (sowie bei § 14a-Anlagen und hohem Stromverbrauch) ein intelligentes Messsystem mit
+    Steuerbarkeit vorzusehen. Erst damit entfällt die 60 %-Einspeisebegrenzung.
+  status: valid
+  valid_from: "2025-02-25"
+  applies_if:
+    measure: [pv]
+    capacity_kwp_min: 7
+  value:
+    smartmeter_threshold_kwp: 7
+  uncertainties:
+    - "Installation is carried out by the (default-responsible) metering point operator; the timing can vary."
+  uncertainties_de:
+    - "Einbau erfolgt durch den (grundzuständigen) Messstellenbetreiber; Zeitpunkt kann variieren."
+  review_needed: "Schedule the smart meter installation with the metering point operator (often BS|NETZ)."
+  review_needed_de: "Smart-Meter-Einbau mit dem Messstellenbetreiber (oft BS|NETZ) terminieren."
+  source:
+    name: "Messstellenbetriebsgesetz (MsbG) § 29 ff. (Smart-Meter-Rollout); Solarspitzengesetz 2025"
+    url: "https://www.gesetze-im-internet.de/messbg/__29.html"
+    type: law
+    legal_status: "in force (current version)"
+    as_of: "2025-02-25"
+    retrieved: "2026-06-17"
+  tags: [msbg, smart-meter, messkonzept]
+
+- id: kfw-270-foerderkredit
+  topic: funding
+  title: "KfW 270 'Renewable Energies – Standard' (subsidized loan)"
+  title_de: "KfW 270 „Erneuerbare Energien – Standard“ (Förderkredit)"
+  statement: >-
+    The KfW supports PV systems, battery storage and charging stations via the loan 270 'Renewable
+    Energies – Standard' with up to 100% of the investment costs (including planning/installation). The
+    application is made before signing the contract via your own house bank; terms 5–30 years.
+  statement_de: >-
+    Die KfW fördert PV-Anlagen, Batteriespeicher und Ladestationen über den Kredit 270 „Erneuerbare
+    Energien – Standard“ mit bis zu 100 % der Investitionskosten (auch Planung/Installation). Die
+    Beantragung läuft vor Vertragsabschluss über die eigene Hausbank; Laufzeiten 5–30 Jahre.
+  status: valid
+  valid_from: "2024-01-01"
+  applies_if:
+    measure: [pv, battery, wallbox]
+  value:
+    financing_percent: 100
+    term_years_min: 5
+    term_years_max: 30
+    interest_note: "effective annual interest rate depends on creditworthiness/term (as of 2026 roughly from ~3.8%)"
+  uncertainties:
+    - "The interest rate is current/creditworthiness-dependent; apply before the purchase contract (house bank principle)."
+  uncertainties_de:
+    - "Zinssatz ist tagesaktuell/bonitätsabhängig; vor Kaufvertrag beantragen (Hausbankprinzip)."
+  review_needed: "Obtain current terms from the house bank/KfW; additionally check regional subsidies."
+  review_needed_de: "Aktuelle Konditionen bei der Hausbank/KfW einholen; regionale Zuschüsse zusätzlich prüfen."
+  source:
+    name: "KfW – Program 270 'Renewable Energies – Standard'"
+    url: "https://www.kfw.de/inlandsfoerderung/Privatpersonen/Bestehende-Immobilie/F%C3%B6rderprodukte/Erneuerbare-Energien-Standard-(270)/"
+    type: funding
+    legal_status: "ongoing program"
+    as_of: "2026-05-01"
+    retrieved: "2026-06-17"
+  tags: [kfw, förderung, kredit]

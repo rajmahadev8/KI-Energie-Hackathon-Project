@@ -1,0 +1,23 @@
+# Python
+backend/.venv/
+backend/logs/
+__pycache__/
+*.pyc
+.pytest_cache/
+backend/.env
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env*.local
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Secrets — never commit
+.env
+*.key

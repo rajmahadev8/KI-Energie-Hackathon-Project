@@ -1,0 +1,97 @@
+{
+  "_about": "Gold answer key for grading the assistant's ANSWERS. 'gold_facts' are verified against primary sources (see docs/sources.md) — they are the ground truth a human grades against. The harness eval_answers.py grades each live answer automatically: grounding (no fabricated/un-surfaced citations), must_cite / forbid_cite, citation recall vs expect_cite, required fact phrases, out_of_scope, and clarifying questions. Optional --judge runs an LLM faithfulness check (every claim supported by the cited rules).",
+  "cases": [
+    {
+      "id": "bs-pv-wallbox-hp-en",
+      "lang": "en",
+      "question": "May I install a PV system, a 22 kW wallbox and a heat pump on my single-family home?",
+      "context": {
+        "address": "38106 Braunschweig", "building_type": "single_family",
+        "roof_area_m2": 55, "roof_azimuth_deg": 180, "roof_tilt_deg": 30,
+        "annual_consumption_kwh": 4500, "measures": ["pv", "wallbox", "heatpump"],
+        "planned_pv_kwp": 9.5, "planned_wallbox_kw": 22, "planned_heatpump": true
+      },
+      "expect_out_of_scope": false,
+      "must_cite": ["wallbox-anmeldung-genehmigung-schwelle", "nbauo-pv-verfahrensfrei"],
+      "forbid_cite": [],
+      "seventy_must_be_outdated": true,
+      "expect_cite": ["nbauo-pv-verfahrensfrei", "bsnetz-pv-anmeldung-vde4105", "mastr-registrierung-pflicht",
+                      "wallbox-anmeldung-genehmigung-schwelle", "enwg-14a-steuerbare-verbrauchseinrichtungen",
+                      "msbg-smartmeter-pflicht"],
+      "require_phrases_any": [
+        ["approval", "approved", "genehmig"],
+        ["smart meter", "intelligent", "metering system"],
+        ["marktstammdaten", "mastr", "register"]
+      ],
+      "gold_facts": [
+        {"rule": "nbauo-pv-verfahrensfrei", "source": "NBauO §32a / Anhang §60",
+         "fact": "Roof-parallel PV on a single-family home in Lower Saxony is verfahrensfrei (no building permit)."},
+        {"rule": "wallbox-anmeldung-genehmigung-schwelle", "source": "NAV §19 / VDE-AR-N 4100",
+         "fact": "A wallbox above 11 kW (e.g. 22 kW) requires grid-operator approval; up to 11 kW only registration."},
+        {"rule": "enwg-14a-steuerbare-verbrauchseinrichtungen", "source": "§14a EnWG; BNetzA BK6-22-300/301",
+         "fact": "Wallbox and heat pump above 4.2 kW fall under §14a EnWG (controllable; reduced grid fee in return)."},
+        {"rule": "msbg-smartmeter-pflicht", "source": "MsbG / Solarspitzengesetz 2025",
+         "fact": "PV above 7 kWp requires an intelligent metering system; otherwise a 60% feed-in limit applies."},
+        {"rule": "mastr-registrierung-pflicht", "source": "MaStRV / Bundesnetzagentur",
+         "fact": "PV and storage must be registered in the Marktstammdatenregister within one month of commissioning."},
+        {"rule": "eeg-feedin-teileinspeisung-2026h1", "source": "Bundesnetzagentur EEG",
+         "fact": "Surplus feed-in tariff for ≤10 kWp (commissioning Feb–Jul 2026) is 7.78 ct/kWh."}
+      ]
+    },
+    {
+      "id": "small-pv-only-en",
+      "lang": "en",
+      "question": "Which rules apply to my small 5 kWp PV system?",
+      "context": {
+        "address": "38100 Braunschweig", "building_type": "single_family",
+        "roof_area_m2": 28, "roof_azimuth_deg": 180, "roof_tilt_deg": 35,
+        "annual_consumption_kwh": 3200, "measures": ["pv"], "planned_pv_kwp": 5.0
+      },
+      "expect_out_of_scope": false,
+      "must_cite": ["nbauo-pv-verfahrensfrei"],
+      "forbid_cite": ["msbg-smartmeter-pflicht", "wallbox-anmeldung-genehmigung-schwelle",
+                      "enwg-14a-steuerbare-verbrauchseinrichtungen"],
+      "expect_cite": ["nbauo-pv-verfahrensfrei", "mastr-registrierung-pflicht", "eeg-feedin-teileinspeisung-2026h1"],
+      "require_phrases_any": [["permit", "verfahrensfrei", "no building"]],
+      "gold_facts": [
+        {"rule": "msbg-smartmeter-pflicht", "source": "MsbG",
+         "fact": "5 kWp is below the 7 kWp threshold → the smart-meter obligation must NOT be asserted as required here."},
+        {"rule": "wallbox-anmeldung-genehmigung-schwelle", "source": "NAV §19",
+         "fact": "No wallbox is planned → wallbox approval rules must NOT appear."}
+      ]
+    },
+    {
+      "id": "expansion-clarify-de",
+      "lang": "de",
+      "question": "Ich möchte meine bestehende PV-Anlage erweitern — was muss ich beachten?",
+      "context": {"address": "38104 Braunschweig", "building_type": "single_family",
+                  "measures": ["pv"], "planned_pv_kwp": 6.0, "annual_consumption_kwh": 5000,
+                  "existing_pv": true},
+      "expect_out_of_scope": false,
+      "expect_clarifying_field": "existing_pv_commissioning",
+      "must_cite": [],
+      "forbid_cite": [],
+      "expect_cite": ["nbauo-pv-verfahrensfrei", "mastr-registrierung-pflicht"],
+      "require_phrases_any": [],
+      "gold_facts": [
+        {"rule": "—", "source": "Plankton challenge §3 example",
+         "fact": "For an existing-system expansion the assistant must first ask for the commissioning date (rules changed over time)."}
+      ]
+    },
+    {
+      "id": "out-of-scope-en",
+      "lang": "en",
+      "question": "What garden insurance do I need for a trampoline?",
+      "context": {"usage": "residential", "measures": []},
+      "expect_out_of_scope": true,
+      "must_cite": [],
+      "forbid_cite": [],
+      "expect_cite": [],
+      "require_phrases_any": [["installer", "specialist", "review"]],
+      "gold_facts": [
+        {"rule": "—", "source": "anti-hallucination",
+         "fact": "Out of scope → the answer must recommend a specialist and cite NOTHING (no fabrication)."}
+      ]
+    }
+  ]
+}

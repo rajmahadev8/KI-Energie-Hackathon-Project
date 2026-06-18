@@ -1,0 +1,9 @@
+Simplified rules for balcony power plants (plug-in solar devices) since Solarpaket I (2024)
+
+Plug-in solar devices ("balcony power plants") have been significantly simplified. Registration in the
+Marktstammdatenregister has been reduced to a few details; a separate registration with the grid operator
+is no longer required. Modules of up to 2000 Watt of installed capacity are permitted, and the
+inverter may feed up to 800 Voltampere (VA) into the home grid. As a transitional measure, even
+backward-running meters are tolerated until the metering point operator swaps in a suitable meter.
+A Schuko plug is tolerated by the standards. Tenants and homeowners have a fundamental right to
+consent for the installation.

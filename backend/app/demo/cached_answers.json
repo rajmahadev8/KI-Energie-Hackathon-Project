@@ -1,0 +1,15 @@
+{
+  "_comment": "Pre-baked answers so the live pitch never depends on a network call. Matched loosely by substring + lang.",
+  "answers": [
+    {
+      "lang": "en",
+      "match": "wallbox",
+      "answer": "**Quick summary for your single-family home in Braunschweig (grid operator BS|Netz):**\n\n- A roof-parallel PV system is exempt from a building permit in Lower Saxony – so you generally need **no building permit** [nbauo-pv-verfahrensfrei].\n- The system must be **registered with BS|Netz** before commissioning and connected in accordance with VDE-AR-N 4105 [bsnetz-pv-anmeldung-vde4105], and registered in the **Marktstammdatenregister** within one month [mastr-registrierung-pflicht].\n- For the planned **22 kW wallbox**, registration alone is not enough: above 11 kW an **approval from BS|Netz** is required; alternatively throttle to 11 kW (registration only) [wallbox-anmeldung-genehmigung-schwelle]. The wallbox and heat pump also fall under **§ 14a EnWG** (grid-oriented control in exchange for a reduced grid fee) [enwg-14a-steuerbare-verbrauchseinrichtungen].\n- From 7 kWp an **intelligent metering system** must be provided; until then the 60% feed-in limit applies [msbg-smartmeter-pflicht] [solarspitzen-60-prozent-cap-2025].\n\n**Open points:** the specific grid connection capacity and the desired metering concept. **Announced:** the feed-in tariff drops slightly as of August 2026 [eeg-feedin-degression-2026h2]. **Outdated:** the formerly often-cited 70% rule no longer applies [eeg-70-prozent-regel-abgeschafft].\n\nThis information is source-based and not legally binding."
+    },
+    {
+      "lang": "de",
+      "match": "wallbox",
+      "answer": "**Kurzfazit für Ihr Einfamilienhaus in Braunschweig (Netzbetreiber BS|Netz):**\n\n- Eine dachparallele PV-Anlage ist in Niedersachsen verfahrensfrei – Sie brauchen also in der Regel **keine Baugenehmigung** [nbauo-pv-verfahrensfrei].\n- Die Anlage muss vor Inbetriebnahme bei **BS|Netz angemeldet** und nach VDE-AR-N 4105 angeschlossen werden [bsnetz-pv-anmeldung-vde4105] sowie innerhalb eines Monats im **Marktstammdatenregister** registriert werden [mastr-registrierung-pflicht].\n- Für die geplante **22-kW-Wallbox** reicht eine Anmeldung nicht: über 11 kW ist eine **Genehmigung von BS|Netz** erforderlich; alternativ auf 11 kW drosseln (nur anmeldepflichtig) [wallbox-anmeldung-genehmigung-schwelle]. Wallbox und Wärmepumpe fallen zudem unter **§ 14a EnWG** (netzorientierte Steuerung gegen reduziertes Netzentgelt) [enwg-14a-steuerbare-verbrauchseinrichtungen].\n- Ab 7 kWp ist ein **intelligentes Messsystem** vorzusehen; bis dahin gilt die 60-%-Einspeisebegrenzung [msbg-smartmeter-pflicht] [solarspitzen-60-prozent-cap-2025].\n\n**Offene Punkte:** konkrete Netzanschlusskapazität und gewünschtes Messkonzept. **Angekündigt:** zum August 2026 sinkt die Einspeisevergütung leicht [eeg-feedin-degression-2026h2]. **Veraltet:** die früher oft genannte 70-%-Regel gilt nicht mehr [eeg-70-prozent-regel-abgeschafft].\n\nDiese Auskunft ist quellenbasiert und nicht rechtsverbindlich."
+    }
+  ]
+}

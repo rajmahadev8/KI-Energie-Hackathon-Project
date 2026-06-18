@@ -1,0 +1,142 @@
+# Sensible combinations & funding for storage, wallbox, heat pump.
+
+- id: battery-sizing-faustregel
+  topic: battery
+  title: "Battery storage: sizing (rule of thumb)"
+  statement: >-
+    For single-family homes, a rough rule of thumb has proven useful: about 1 kWh of usable storage capacity per 1 kWp
+    of PV power, or per 1,000 kWh of annual consumption. Storage typically increases self-consumption
+    from ~30% to 60–70%. The storage system must be registered in the MaStR and falls (> 4.2 kW) under § 14a EnWG.
+  status: valid
+  valid_from: "2024-01-01"
+  applies_if:
+    measure: [battery]
+  value:
+    kwh_per_kwp: 1.0
+    typical_selfconsumption_with_battery: 0.65
+  uncertainties:
+    - "The economically optimal size depends on the consumption profile, heat pump and electric car."
+  review_needed: "Have the storage size dimensioned based on the specific load profile."
+  title_de: "Batteriespeicher: Dimensionierung (Faustregel)"
+  statement_de: >-
+    Für Einfamilienhäuser hat sich grob bewährt: rund 1 kWh nutzbare Speicherkapazität je 1 kWp
+    PV-Leistung bzw. je 1.000 kWh Jahresverbrauch. Ein Speicher erhöht den Eigenverbrauch typischerweise
+    von ~30 % auf 60–70 %. Der Speicher muss im MaStR registriert werden und fällt (> 4,2 kW) unter § 14a EnWG.
+  uncertainties_de:
+    - "Wirtschaftlich optimale Größe hängt von Verbrauchsprofil, Wärmepumpe und E-Auto ab."
+  review_needed_de: "Speichergröße anhand des konkreten Lastprofils auslegen lassen."
+  source:
+    name: "Industieübliche Faustregel (kein Rechtsstand) — Regulatorik: § 14a EnWG / MaStR"
+    url: "https://www.gesetze-im-internet.de/enwg_2005/__14a.html"
+    type: faq
+    legal_status: "guidance value (not a standard)"
+    as_of: "2026-01-01"
+    retrieved: "2026-06-17"
+  tags: [speicher, dimensionierung, eigenverbrauch]
+
+- id: wallbox-pv-ueberschussladen
+  topic: wallbox
+  title: "Wallbox + PV: surplus charging"
+  statement: >-
+    A wallbox combines well with PV (PV surplus charging preferentially charges the car with
+    your own solar electricity). An 11 kW wallbox is usually recommended (registration only, three-phase,
+    PV-surplus-capable). Via § 14a EnWG a reduced grid fee is possible.
+  status: valid
+  valid_from: "2024-01-01"
+  applies_if:
+    measure: [wallbox]
+  value:
+    recommended_kw: 11
+  uncertainties:
+    - "PV surplus charging requires a suitable wallbox + energy management/metering."
+  review_needed: "Clarify energy management (PV surplus) and load management with the specialist company."
+  title_de: "Wallbox + PV: Überschussladen"
+  statement_de: >-
+    Eine Wallbox lässt sich gut mit PV kombinieren (PV-Überschussladen lädt das Auto bevorzugt mit
+    eigenem Solarstrom). Empfohlen wird meist eine 11-kW-Wallbox (nur anmeldepflichtig, dreiphasig,
+    PV-überschussfähig). Über § 14a EnWG ist ein reduziertes Netzentgelt möglich.
+  uncertainties_de:
+    - "PV-Überschussladen benötigt geeignete Wallbox + Energiemanagement/Messung."
+  review_needed_de: "Energiemanagement (PV-Überschuss) und Lastmanagement mit dem Fachbetrieb klären."
+  source:
+    name: "See wallbox-anmeldung-genehmigung-schwelle & enwg-14a"
+    url: "https://www.bs-netz.de/privatkunden/bau-anschluss/photovoltaikanlagen/"
+    type: faq
+    legal_status: "guidance"
+    as_of: "2026-01-01"
+    retrieved: "2026-06-17"
+  tags: [wallbox, pv, überschussladen]
+
+- id: heatpump-pv-kombination
+  topic: heatpump
+  title: "Heat pump + PV: combination"
+  statement: >-
+    A heat pump and PV complement each other, but heat demand is mainly in winter, when PV
+    delivers little — so the solar coverage of the heat pump's electricity is limited (often 20–40% over the
+    year). The heat pump (> 4.2 kW) falls under § 14a EnWG (reduced grid fee, possibly a separate
+    meter).
+  status: valid
+  valid_from: "2024-01-01"
+  applies_if:
+    measure: [heatpump]
+  value:
+    typical_solar_coverage: 0.3
+  uncertainties:
+    - "Solar coverage strongly depends on building insulation, heating system (flow temperature) and storage."
+  review_needed: "Check the heating load / flow temperature and the § 14a metering concept with the specialist company."
+  title_de: "Wärmepumpe + PV: Kombination"
+  statement_de: >-
+    Wärmepumpe und PV ergänzen sich, allerdings liegt der Wärmebedarf v. a. im Winter, wenn die
+    PV wenig liefert — die solare Deckung des Wärmepumpenstroms ist daher begrenzt (oft 20–40 % übers
+    Jahr). Die Wärmepumpe (> 4,2 kW) fällt unter § 14a EnWG (reduziertes Netzentgelt, ggf. separater
+    Zähler).
+  uncertainties_de:
+    - "Solare Deckung stark von Gebäudedämmung, Heizsystem (Vorlauftemperatur) und Speicher abhängig."
+  review_needed_de: "Heizlast/Vorlauftemperatur und § 14a-Zählerkonzept mit dem Fachbetrieb prüfen."
+  source:
+    name: "See enwg-14a-steuerbare-verbrauchseinrichtungen"
+    url: "https://www.gesetze-im-internet.de/enwg_2005/__14a.html"
+    type: faq
+    legal_status: "guidance"
+    as_of: "2026-01-01"
+    retrieved: "2026-06-17"
+  tags: [wärmepumpe, pv, eigenverbrauch]
+
+- id: beg-heizungsfoerderung-waermepumpe
+  topic: funding
+  title: "BEG heating subsidy for heat pumps (grant, up to 70%)"
+  statement: >-
+    Replacing an old heating system with a heat pump is supported via the Federal Funding for
+    Efficient Buildings (BEG, KfW grant 458): base funding 30%, plus
+    climate-speed bonus 20% and income-dependent bonus 30%, capped at max. 70%.
+    Eligible costs for the first residential unit max. EUR 30,000.
+  status: valid
+  valid_from: "2024-01-01"
+  applies_if:
+    measure: [heatpump]
+  value:
+    base_percent: 30
+    speed_bonus_percent: 20
+    income_bonus_percent: 30
+    cap_percent: 70
+    max_eligible_cost_eur: 30000
+  uncertainties:
+    - "Check bonus prerequisites (income, replacement obligation, deadlines) in each case; verify the 2026 program status."
+  review_needed: "Check current BEG terms 2026 with the KfW and apply BEFORE awarding the contract."
+  title_de: "BEG-Heizungsförderung für Wärmepumpen (Zuschuss, bis 70 %)"
+  statement_de: >-
+    Der Austausch einer alten Heizung gegen eine Wärmepumpe wird über die Bundesförderung für
+    effiziente Gebäude (BEG, KfW-Zuschuss 458) gefördert: Grundförderung 30 %, plus
+    Klimageschwindigkeits-Bonus 20 % und einkommensabhängiger Bonus 30 %, gedeckelt auf max. 70 %.
+    Förderfähige Kosten für die erste Wohneinheit max. 30.000 €.
+  uncertainties_de:
+    - "Bonusvoraussetzungen (Einkommen, Austauschpflicht, Termine) im Einzelfall prüfen; Programmstand 2026 verifizieren."
+  review_needed_de: "Aktuelle BEG-Konditionen 2026 bei KfW prüfen und VOR Auftragsvergabe beantragen."
+  source:
+    name: "BEG / KfW grant 458 — heating subsidy"
+    url: "https://www.kfw.de/inlandsfoerderung/Privatpersonen/Bestehende-Immobilie/F%C3%B6rderprodukte/Heizungsf%C3%B6rderung-f%C3%BCr-Privatpersonen-Wohngeb%C3%A4ude-(458)/"
+    type: funding
+    legal_status: "ongoing program"
+    as_of: "2026-05-01"
+    retrieved: "2026-06-17"
+  tags: [wärmepumpe, beg, förderung, kfw458]

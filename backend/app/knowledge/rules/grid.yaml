@@ -1,0 +1,116 @@
+# Grid connection & grid operators (incl. BS|Netz Braunschweig) and §14a EnWG.
+
+- id: bsnetz-pv-anmeldung-vde4105
+  topic: grid
+  title: "BS|NETZ: PV registration & grid compatibility check (Braunschweig)"
+  title_de: "BS|NETZ: PV-Anmeldung & Netzverträglichkeitsprüfung (Braunschweig)"
+  statement: >-
+    In the Braunschweig grid area, BS|NETZ is the distribution grid operator. Every PV system must be
+    registered with BS|NETZ before commissioning and connected in accordance with VDE-AR-N 4105 by a
+    registered specialist electrical company; BS|NETZ carries out a grid compatibility check.
+    As a rule, the installer handles the registration and completion notice.
+  statement_de: >-
+    Im Netzgebiet Braunschweig ist BS|NETZ der Verteilnetzbetreiber. Jede PV-Anlage muss vor
+    Inbetriebnahme bei BS|NETZ angemeldet und nach VDE-AR-N 4105 durch einen eingetragenen
+    Elektrofachbetrieb angeschlossen werden; BS|NETZ führt eine Netzverträglichkeitsprüfung durch.
+    In der Regel übernimmt der Installateur Anmeldung und Fertigmeldung.
+  status: valid
+  valid_from: "2023-01-01"
+  applies_if:
+    measure: [pv]
+    grid_operator: ["BS|Netz"]
+  value:
+    standard: "VDE-AR-N 4105"
+  uncertainties:
+    - "Check the specific forms/deadlines at BS|NETZ depending on the system size."
+  uncertainties_de:
+    - "Konkrete Formulare/Fristen bei BS|NETZ je nach Anlagengröße prüfen."
+  review_needed: "Use the registration form and supplementary notes on the TAB NS Nord 2023 from BS|NETZ."
+  review_needed_de: "Anmeldeformular und ergänzende Hinweise zur TAB NS Nord 2023 von BS|NETZ verwenden."
+  source:
+    name: "BS|NETZ – Photovoltaic systems / TAB NS Nord 2023"
+    url: "https://www.bs-netz.de/privatkunden/bau-anschluss/photovoltaikanlagen/"
+    type: grid_operator
+    legal_status: "valid connection conditions"
+    as_of: "2024-03-01"
+    retrieved: "2026-06-17"
+  tags: [bsnetz, braunschweig, netzanschluss, vde-ar-n-4105]
+
+- id: enwg-14a-steuerbare-verbrauchseinrichtungen
+  topic: grid
+  title: "§ 14a EnWG: controllable consumption devices (> 4.2 kW)"
+  title_de: "§ 14a EnWG: steuerbare Verbrauchseinrichtungen (> 4,2 kW)"
+  statement: >-
+    Since 2024-01-01, new controllable consumption devices above 4.2 kW drawn power —
+    heat pumps, non-public wallboxes, air conditioners and battery storage — fall under § 14a EnWG.
+    The grid operator may, when needed, reduce the power down to 4.2 kW (grid-oriented
+    control); in return there is a permanently reduced grid fee. The device must be registered
+    with the grid operator.
+  statement_de: >-
+    Seit 01.01.2024 fallen neue steuerbare Verbrauchseinrichtungen über 4,2 kW Bezugsleistung —
+    Wärmepumpen, nicht öffentliche Wallboxen, Klimageräte und Batteriespeicher — unter § 14a EnWG.
+    Der Netzbetreiber darf die Leistung im Bedarfsfall bis auf 4,2 kW reduzieren (netzorientierte
+    Steuerung); im Gegenzug gibt es dauerhaft ein reduziertes Netzentgelt. Die Anlage muss beim
+    Netzbetreiber angemeldet werden.
+  status: valid
+  valid_from: "2024-01-01"
+  applies_if:
+    measure: [wallbox, heatpump, battery]
+  value:
+    min_power_kw: 4.2
+    dimming_floor_kw: 4.2
+  uncertainties:
+    - "The choice of fee module (flat-rate reduction, percentage-based or time-variable) must be made."
+    - "A separate meter may be needed for a separate off-peak tariff."
+  uncertainties_de:
+    - "Wahl des Entgelt-Moduls (pauschale Reduzierung, prozentual oder Zeitvariabel) ist zu treffen."
+    - "Für separaten NT-Tarif kann ein eigener Zähler nötig sein."
+  review_needed: "Clarify the module choice (1/2/3) and metering concept with BS|NETZ."
+  review_needed_de: "Mit BS|NETZ Modulwahl (1/2/3) und Zählerkonzept klären."
+  source:
+    name: "§ 14a EnWG; BNetzA rulings BK6-22-300/301"
+    url: "https://www.gesetze-im-internet.de/enwg_2005/__14a.html"
+    type: law
+    legal_status: "in force (current version)"
+    as_of: "2024-01-01"
+    retrieved: "2026-06-17"
+  tags: [paragraf-14a, steuerbar, netzentgelt]
+
+- id: wallbox-anmeldung-genehmigung-schwelle
+  topic: grid
+  title: "Wallbox: registration up to 11 kW, approval above 11 kW"
+  title_de: "Wallbox: Anmeldung bis 11 kW, Genehmigung über 11 kW"
+  statement: >-
+    A private wallbox up to 11 kW only has to be REGISTERED with the grid operator; the operator
+    cannot refuse the connection. A wallbox above 11 kW (e.g. 22 kW) additionally
+    REQUIRES APPROVAL — the grid operator must consent before installation. The legal basis is
+    the low-voltage connection ordinance (NAV) and VDE-AR-N 4100. The grid operator usually responds
+    within two months.
+  statement_de: >-
+    Eine private Wallbox bis 11 kW muss beim Netzbetreiber nur ANGEMELDET werden; er kann den
+    Anschluss nicht ablehnen. Eine Wallbox über 11 kW (z. B. 22 kW) ist zusätzlich
+    GENEHMIGUNGSPFLICHTIG — der Netzbetreiber muss vor Installation zustimmen. Rechtsgrundlage sind
+    die Niederspannungsanschlussverordnung (NAV) und VDE-AR-N 4100. Der Netzbetreiber antwortet i. d. R.
+    binnen zwei Monaten.
+  status: valid
+  valid_from: "2019-01-01"
+  applies_if:
+    measure: [wallbox]
+  value:
+    notify_max_kw: 11
+    approval_above_kw: 11
+    operator_response_months: 2
+  uncertainties:
+    - "The threshold is defined as apparent power (≈12 kVA); 11 kW is just below it."
+  uncertainties_de:
+    - "Schwelle ist als Scheinleistung definiert (≈12 kVA); 11 kW liegt knapp darunter."
+  review_needed: "If a 22 kW unit is desired, apply for approval from BS|NETZ early or throttle to 11 kW."
+  review_needed_de: "Bei 22-kW-Wunsch frühzeitig Genehmigung bei BS|NETZ beantragen oder auf 11 kW drosseln."
+  source:
+    name: "NAV § 19; VDE-AR-N 4100"
+    url: "https://www.gesetze-im-internet.de/nav/__19.html"
+    type: regulation
+    legal_status: "in force (current version)"
+    as_of: "2026-01-01"
+    retrieved: "2026-06-17"
+  tags: [wallbox, anmeldung, genehmigung]

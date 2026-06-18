@@ -1,0 +1,39 @@
+# Grobe Ertrags-Kennwerte für eine erste technische Einschätzung (keine Ertragsprognose!).
+# Spezifischer Ertrag in kWh pro kWp und Jahr; Korrekturfaktoren nach Ausrichtung und Neigung.
+
+# Basis-Ertrag (Süd, ~30° Neigung) je Region — Norddeutschland niedriger als Süddeutschland.
+specific_yield_base_kwh_per_kwp:
+  NI: 970      # Niedersachsen / Braunschweig
+  HB: 970
+  HH: 950
+  BE: 990
+  NW: 980
+  BW: 1060
+  BY: 1070
+  default: 1000
+
+# Korrekturfaktor nach Azimut (180° = Süd, 90° = Ost, 270° = West).
+azimuth_factor:
+  - { from: 157, to: 203, factor: 1.00 }   # Süd
+  - { from: 113, to: 157, factor: 0.95 }   # Südost
+  - { from: 203, to: 247, factor: 0.95 }   # Südwest
+  - { from: 67,  to: 113, factor: 0.85 }   # Ost
+  - { from: 247, to: 293, factor: 0.85 }   # West
+  - { from: 0,   to: 67,  factor: 0.70 }   # Nordost
+  - { from: 293, to: 360, factor: 0.70 }   # Nordwest
+
+# Korrekturfaktor nach Dachneigung (Grad).
+tilt_factor:
+  - { from: 25, to: 40, factor: 1.00 }
+  - { from: 15, to: 25, factor: 0.97 }
+  - { from: 40, to: 55, factor: 0.97 }
+  - { from: 5,  to: 15, factor: 0.92 }
+  - { from: 55, to: 90, factor: 0.88 }
+  - { from: 0,  to: 5,  factor: 0.90 }   # Flachdach (meist aufgeständert)
+
+# Flächenbedarf: nutzbare kWp je m² Dachfläche (moderne Module ~0,21 kWp/m² Modulfläche,
+# abzüglich Abständen/Verschattung ~0,18–0,20 nutzbar).
+kwp_per_m2_usable: 0.19
+# Modulgröße für grobe Stückzahl-Schätzung
+module_wp: 430
+module_area_m2: 1.95

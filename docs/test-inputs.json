@@ -1,0 +1,93 @@
+{
+  "_about": "Ready-to-use sample inputs for testing the KI-PV-Assistent backend. Each scenario has a ProjectContext (`context`), a `question`, a `lang` (de/en), and what it should demonstrate (`expect`). Paste a context into the UI or POST it to the API.",
+  "usage": {
+    "context": "curl -s -X POST 'http://localhost:8000/context?lang=de' -H 'Content-Type: application/json' -d '<context>'",
+    "assess":  "curl -s -X POST 'http://localhost:8000/assess?lang=de'  -H 'Content-Type: application/json' -d '<context>'",
+    "answer":  "curl -s -X POST 'http://localhost:8000/answer' -H 'Content-Type: application/json' -d '{\"lang\":\"de\",\"question\":\"<question>\",\"context\":<context>}'"
+  },
+  "scenarios": [
+    {
+      "id": "braunschweig-full-de",
+      "description": "Demo case: single-family home in Braunschweig, PV + 22 kW wallbox + heat pump (German).",
+      "expect": "Resolves NI + BS|Netz; valid: NBauO exempt, MaStR, smart meter (>7 kWp); 22 kW wallbox needs approval + §14a; announced: Aug-2026 degression; outdated: 70% rule.",
+      "lang": "de",
+      "question": "Welche Regeln, Pflichten und nächsten Schritte gelten für mein Vorhaben (PV, Wallbox, Wärmepumpe)?",
+      "context": {
+        "address": "38106 Braunschweig", "building_type": "single_family", "usage": "residential",
+        "roof_area_m2": 55, "roof_azimuth_deg": 180, "roof_tilt_deg": 30, "shading": "low",
+        "annual_consumption_kwh": 4500, "ev_annual_kwh": 2500,
+        "measures": ["pv", "wallbox", "heatpump"], "planned_pv_kwp": 9.5,
+        "planned_wallbox_kw": 22, "planned_heatpump": true, "existing_pv": false
+      }
+    },
+    {
+      "id": "braunschweig-full-en",
+      "description": "Same demo case in English (verifies bilingual answers).",
+      "expect": "Identical rules, English phrasing + English clarifying/assessment text.",
+      "lang": "en",
+      "question": "Which rules, obligations and next steps apply to my project (PV, wallbox, heat pump)?",
+      "context": {
+        "address": "38106 Braunschweig", "building_type": "single_family", "usage": "residential",
+        "roof_area_m2": 55, "roof_azimuth_deg": 180, "roof_tilt_deg": 30, "shading": "low",
+        "annual_consumption_kwh": 4500, "measures": ["pv", "wallbox", "heatpump"],
+        "planned_pv_kwp": 9.5, "planned_wallbox_kw": 22, "planned_heatpump": true, "existing_pv": false
+      }
+    },
+    {
+      "id": "small-pv-only",
+      "description": "Small 5 kWp PV only — below the 7 kWp smart-meter threshold.",
+      "expect": "Smart-meter rule (msbg) NOT applicable; feed-in tariff + MaStR + NBauO still apply.",
+      "lang": "de",
+      "question": "Welche Regeln gelten für meine kleine PV-Anlage?",
+      "context": {
+        "address": "38100 Braunschweig", "building_type": "single_family",
+        "roof_area_m2": 28, "roof_azimuth_deg": 180, "roof_tilt_deg": 35,
+        "annual_consumption_kwh": 3200, "measures": ["pv"], "planned_pv_kwp": 5.0, "existing_pv": false
+      }
+    },
+    {
+      "id": "north-roof-limited",
+      "description": "North-facing roof (azimuth 0°) — limited suitability.",
+      "expect": "Assessment suitability 'limited', lower score/yield; note about non-south orientation.",
+      "lang": "en",
+      "question": "Is PV worthwhile on my roof?",
+      "context": {
+        "address": "38106 Braunschweig", "building_type": "single_family",
+        "roof_area_m2": 40, "roof_azimuth_deg": 0, "roof_tilt_deg": 40,
+        "annual_consumption_kwh": 4000, "measures": ["pv"], "planned_pv_kwp": 7.5, "existing_pv": false
+      }
+    },
+    {
+      "id": "existing-pv-expansion",
+      "description": "Existing PV, user wants to expand but gives no commissioning date.",
+      "expect": "Clarifying question asks for the existing_pv_commissioning date (the 'I ask you' behavior).",
+      "lang": "de",
+      "question": "Ich möchte meine bestehende PV-Anlage erweitern — was muss ich beachten?",
+      "context": {
+        "address": "38104 Braunschweig", "building_type": "single_family",
+        "measures": ["pv"], "planned_pv_kwp": 6.0, "annual_consumption_kwh": 5000,
+        "existing_pv": true
+      }
+    },
+    {
+      "id": "stuttgart-other-operator",
+      "description": "Different region (Stuttgart 70569) — different grid operator + state.",
+      "expect": "Resolves BW + Netze BW; NBauO (Niedersachsen) building-law rules do NOT apply; EEG/§14a/MaStR still apply.",
+      "lang": "de",
+      "question": "Welche Regeln gelten für meine PV-Anlage?",
+      "context": {
+        "address": "70569 Stuttgart", "building_type": "single_family",
+        "roof_area_m2": 50, "roof_azimuth_deg": 180, "roof_tilt_deg": 30,
+        "annual_consumption_kwh": 4500, "measures": ["pv"], "planned_pv_kwp": 9.0, "existing_pv": false
+      }
+    },
+    {
+      "id": "out-of-scope",
+      "description": "A question the knowledge base does not cover (anti-hallucination check).",
+      "expect": "out_of_scope=true; answer recommends a specialist/installer instead of inventing facts.",
+      "lang": "en",
+      "question": "What garden insurance do I need for a trampoline?",
+      "context": { "usage": "residential", "measures": [] }
+    }
+  ]
+}

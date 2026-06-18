@@ -1,0 +1,18 @@
+# Postcode prefix → distribution grid operator + federal state. Prototype: sample coverage, no claim
+# to completeness (explicitly not required by the challenge). Focus on Braunschweig.
+default:
+  grid_operator: "local distribution grid operator (please confirm)"
+  state: null
+  state_name: null
+
+prefixes:
+  "381":   { grid_operator: "BS|Netz", state: "NI", state_name: "Lower Saxony", region: "Braunschweig" }
+  "380":   { grid_operator: "BS|Netz", state: "NI", state_name: "Lower Saxony", region: "Braunschweig (surrounding area)" }
+  "383":   { grid_operator: "Avacon Netz", state: "NI", state_name: "Lower Saxony", region: "Wolfsburg/Gifhorn" }
+  "30":    { grid_operator: "Region Hannover (enercity Netz)", state: "NI", state_name: "Lower Saxony", region: "Hannover" }
+  "28":    { grid_operator: "wesernetz Bremen", state: "HB", state_name: "Bremen", region: "Bremen" }
+  "20":    { grid_operator: "Stromnetz Hamburg", state: "HH", state_name: "Hamburg", region: "Hamburg" }
+  "10":    { grid_operator: "Stromnetz Berlin", state: "BE", state_name: "Berlin", region: "Berlin" }
+  "70":    { grid_operator: "Netze BW", state: "BW", state_name: "Baden-Württemberg", region: "Stuttgart" }
+  "80":    { grid_operator: "SWM Infrastruktur", state: "BY", state_name: "Bavaria", region: "Munich" }
+  "50":    { grid_operator: "Rheinische NETZGesellschaft", state: "NW", state_name: "North Rhine-Westphalia", region: "Cologne" }

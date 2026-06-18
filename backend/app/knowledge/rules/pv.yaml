@@ -1,0 +1,326 @@
+# PV — feed-in tariff (Einspeisevergütung), registration, feed-in/control rules.
+# Values checked against primary sources; status see source.as_of / retrieved. Not legally binding.
+
+- id: eeg-feedin-teileinspeisung-2026h1
+  topic: pv
+  title: "EEG feed-in tariff (surplus feed-in), commissioning Feb–Jul 2026"
+  statement: >-
+    New PV systems with surplus feed-in (partial feed-in) commissioned between
+    2026-02-01 and 2026-07-31 receive fixed tariff rates: 7.78 ct/kWh up to 10 kWp,
+    6.73 ct/kWh for the 10–40 kWp share and 5.50 ct/kWh for 40–100 kWp. The tariff is
+    guaranteed for 20 years from commissioning.
+  status: valid
+  valid_from: "2026-02-01"
+  valid_until: "2026-07-31"
+  applies_if:
+    measure: [pv]
+    capacity_kwp_max: 100
+    commissioning_after: "2026-02-01"
+  value:
+    feed_in_mode: surplus
+    ct_per_kwh_le10: 7.78
+    ct_per_kwh_10_40: 6.73
+    ct_per_kwh_40_100: 5.50
+    guarantee_years: 20
+  uncertainties:
+    - "Rates fall by about 1% every six months; the actual commissioning date is decisive."
+  review_needed: "Check the tariff rate for the planned commissioning date with the Bundesnetzagentur (Federal Network Agency)."
+  title_de: "EEG-Einspeisevergütung (Überschusseinspeisung), Inbetriebnahme Feb–Jul 2026"
+  statement_de: >-
+    Für neue PV-Anlagen mit Überschusseinspeisung (Teileinspeisung) gelten bei Inbetriebnahme
+    zwischen 01.02.2026 und 31.07.2026 feste Vergütungssätze: 7,78 ct/kWh bis 10 kWp,
+    6,73 ct/kWh für den Anteil 10–40 kWp und 5,50 ct/kWh für 40–100 kWp. Die Vergütung ist ab
+    Inbetriebnahme für 20 Jahre garantiert.
+  uncertainties_de:
+    - "Sätze sinken halbjährlich um ca. 1 %; maßgeblich ist das konkrete Inbetriebnahmedatum."
+  review_needed_de: "Vergütungssatz zum geplanten Inbetriebnahmedatum bei der Bundesnetzagentur prüfen."
+  source:
+    name: "EEG 2023 § 48 (anzulegende Werte für Solaranlagen); aktuelle Sätze: Bundesnetzagentur"
+    url: "https://www.gesetze-im-internet.de/eeg_2014/__48.html"
+    type: regulation
+    legal_status: "in force (current version)"
+    as_of: "2026-02-01"
+    retrieved: "2026-06-17"
+  tags: [einspeisevergütung, vergütung, eeg]
+
+- id: eeg-feedin-volleinspeisung-2026h1
+  topic: pv
+  title: "EEG feed-in tariff (full feed-in), commissioning Feb–Jul 2026"
+  statement: >-
+    Those who feed in all of their electricity (full feed-in) receive higher rates when commissioning
+    between 2026-02-01 and 2026-07-31: 12.34 ct/kWh up to 10 kWp and 10.35 ct/kWh for 10–100 kWp. Full
+    feed-in must be chosen in advance and reported to the grid operator, and is worthwhile mainly with low self-consumption.
+  status: valid
+  valid_from: "2026-02-01"
+  valid_until: "2026-07-31"
+  applies_if:
+    measure: [pv]
+    capacity_kwp_max: 100
+    commissioning_after: "2026-02-01"
+  value:
+    feed_in_mode: full
+    ct_per_kwh_le10: 12.34
+    ct_per_kwh_10_100: 10.35
+    guarantee_years: 20
+  uncertainties:
+    - "The choice of full vs. partial feed-in should be weighed economically; an annual switch is possible."
+  review_needed: "Determine the self-consumption ratio in order to compare full vs. partial feed-in."
+  title_de: "EEG-Einspeisevergütung (Volleinspeisung), Inbetriebnahme Feb–Jul 2026"
+  statement_de: >-
+    Wer den gesamten Strom einspeist (Volleinspeisung), erhält bei Inbetriebnahme 01.02.–31.07.2026
+    höhere Sätze: 12,34 ct/kWh bis 10 kWp und 10,35 ct/kWh für 10–100 kWp. Die Volleinspeisung muss
+    vorab gewählt und dem Netzbetreiber gemeldet werden und lohnt sich v. a. bei geringem Eigenverbrauch.
+  uncertainties_de:
+    - "Wahl Voll-/Teileinspeisung ist wirtschaftlich abzuwägen; jährlicher Wechsel möglich."
+  review_needed_de: "Eigenverbrauchsquote ermitteln, um Voll- vs. Teileinspeisung zu vergleichen."
+  source:
+    name: "EEG 2023 § 48 (anzulegende Werte für Solaranlagen); aktuelle Sätze: Bundesnetzagentur"
+    url: "https://www.gesetze-im-internet.de/eeg_2014/__48.html"
+    type: regulation
+    legal_status: "in force (current version)"
+    as_of: "2026-02-01"
+    retrieved: "2026-06-17"
+  tags: [einspeisevergütung, volleinspeisung, eeg]
+
+- id: eeg-feedin-degression-2026h2
+  topic: pv
+  title: "Announced reduction of the feed-in tariff from August 2026"
+  statement: >-
+    As of 2026-08-01 the tariff rates continue their routine decline (surplus up to 10 kWp
+    expected to be about 7.71 ct/kWh, full feed-in about 12.23 ct/kWh). Commissioning before the
+    cut-off date still secures the higher rates for the full 20-year term.
+  status: announced
+  valid_from: "2026-08-01"
+  applies_if:
+    measure: [pv]
+    commissioning_after: "2026-08-01"
+  value:
+    ct_per_kwh_le10_surplus: 7.71
+    ct_per_kwh_le10_full: 12.23
+  uncertainties:
+    - "The exact values are only published in final form by the Bundesnetzagentur shortly before the cut-off date."
+  review_needed: "Wait for / check the final degression value for H2/2026."
+  title_de: "Angekündigte Absenkung der Einspeisevergütung ab August 2026"
+  statement_de: >-
+    Zum 01.08.2026 sinken die Vergütungssätze turnusmäßig weiter (Überschuss bis 10 kWp
+    voraussichtlich ca. 7,71 ct/kWh, Volleinspeisung ca. 12,23 ct/kWh). Eine Inbetriebnahme vor dem
+    Stichtag sichert noch die höheren Sätze für die volle 20-jährige Laufzeit.
+  uncertainties_de:
+    - "Exakte Werte werden von der Bundesnetzagentur erst kurz vor dem Stichtag final veröffentlicht."
+  review_needed_de: "Finalen Degressionswert für H2/2026 abwarten/prüfen."
+  source:
+    name: "EEG 2023 § 49 (Absenkung/Degression der Vergütung); Bundesnetzagentur"
+    url: "https://www.gesetze-im-internet.de/eeg_2014/__49.html"
+    type: regulation
+    legal_status: "announced degression"
+    as_of: "2026-06-01"
+    retrieved: "2026-06-17"
+  tags: [einspeisevergütung, degression, angekündigt]
+
+- id: solarspitzen-negative-preise-2025
+  topic: pv
+  title: "No payment during negative electricity prices (Solarspitzengesetz)"
+  statement: >-
+    Since 2025-02-25, new PV systems receive no feed-in tariff for electricity fed in during
+    periods of negative exchange electricity prices. The lost hours are accumulated and compensated by
+    an extension of the support period beyond the 20 years ("credit account").
+  status: valid
+  valid_from: "2025-02-25"
+  applies_if:
+    measure: [pv]
+    commissioning_after: "2025-02-25"
+  value:
+    compensation: "Extension of the support period by the affected quarter-hours"
+  uncertainties:
+    - "The economic impact depends on the frequency of negative prices; self-consumption nullifies the rule."
+  review_needed: null
+  title_de: "Keine Vergütung bei negativen Strompreisen (Solarspitzengesetz)"
+  statement_de: >-
+    Seit 25.02.2025 erhalten neue PV-Anlagen keine Einspeisevergütung für Strom, der in Zeiten
+    negativer Börsenstrompreise eingespeist wird. Die entgangenen Stunden werden gesammelt und durch
+    eine Verlängerung des Förderzeitraums nach den 20 Jahren ausgeglichen ("Guthabenkonto").
+  uncertainties_de:
+    - "Wirtschaftliche Auswirkung hängt von Häufigkeit negativer Preise ab; Eigenverbrauch entwertet die Regel."
+  review_needed_de: null
+  source:
+    name: "EEG 2023 § 51 / § 51a (Solarspitzengesetz 2025) — keine Vergütung bei negativen Preisen"
+    url: "https://www.gesetze-im-internet.de/eeg_2014/__51.html"
+    type: law
+    legal_status: "in force (current version)"
+    as_of: "2025-02-25"
+    retrieved: "2026-06-17"
+  tags: [solarspitzengesetz, negative-preise]
+
+- id: solarspitzen-60-prozent-cap-2025
+  topic: pv
+  title: "60% feed-in limit without smart meter / control (Solarspitzengesetz)"
+  statement: >-
+    New PV systems may feed only 60% of their rated power into the grid until an
+    intelligent metering system (smart meter) and grid-oriented control are installed.
+    With a smart meter and controllability, the 60% limit no longer applies.
+  status: valid
+  valid_from: "2025-02-25"
+  applies_if:
+    measure: [pv]
+    capacity_kwp_min: 2
+    capacity_kwp_max: 100
+    commissioning_after: "2025-02-25"
+  value:
+    feed_in_cap_percent_without_smartmeter: 60
+  uncertainties:
+    - "Self-consumption/storage significantly reduces the yield lost to the 60% capping."
+  review_needed: "Clarify smart meter installation with the metering point operator/grid operator to lift the cap."
+  title_de: "60 %-Einspeisebegrenzung ohne Smart Meter / Steuerung (Solarspitzengesetz)"
+  statement_de: >-
+    Neue PV-Anlagen dürfen so lange nur 60 % ihrer Nennleistung ins Netz einspeisen, bis ein
+    intelligentes Messsystem (Smart Meter) und die netzorientierte Steuerung installiert sind.
+    Mit Smart Meter und Steuerbarkeit entfällt die 60 %-Begrenzung.
+  uncertainties_de:
+    - "Eigenverbrauch/Speicher mindern den durch die 60 %-Kappung verlorenen Ertrag deutlich."
+  review_needed_de: "Smart-Meter-Einbau mit Messstellenbetreiber/Netzbetreiber klären, um Kappung aufzuheben."
+  source:
+    name: "EEG 2023 § 9 (Solarspitzengesetz 2025) i. V. m. MsbG — 60 %-Begrenzung"
+    url: "https://www.gesetze-im-internet.de/eeg_2014/__9.html"
+    type: law
+    legal_status: "in force (current version)"
+    as_of: "2025-02-25"
+    retrieved: "2026-06-17"
+  tags: [solarspitzengesetz, einspeisebegrenzung, smart-meter]
+
+- id: eeg-70-prozent-regel-abgeschafft
+  topic: pv
+  title: "70% active power limit — abolished (outdated)"
+  statement: >-
+    The former 70% rule (limiting feed-in to 70% of rated power for small systems)
+    is NO LONGER applicable. It was abolished with the EEG 2023 — immediately for systems
+    commissioned from 2023, and also lifted for existing systems up to 7 kWp. Instead, the
+    60% rule of the Solarspitzengesetz now applies (see solarspitzen-60-prozent-cap-2025).
+  status: expired
+  valid_from: "2012-01-01"
+  valid_until: "2022-12-31"
+  applies_if:
+    measure: [pv]
+  value: {}
+  uncertainties:
+    - "Older guides/press articles often still incorrectly present it as being in force."
+  review_needed: null
+  title_de: "70 %-Wirkleistungsbegrenzung — abgeschafft (veraltet)"
+  statement_de: >-
+    Die frühere 70 %-Regel (Begrenzung der Einspeisung auf 70 % der Nennleistung für kleine Anlagen)
+    ist NICHT mehr anzuwenden. Sie wurde mit dem EEG 2023 abgeschafft — für ab 2023 in Betrieb
+    genommene Anlagen sofort, für Bestandsanlagen bis 7 kWp ebenfalls aufgehoben. Aktuell gilt
+    stattdessen die 60 %-Regel des Solarspitzengesetzes (siehe solarspitzen-60-prozent-cap-2025).
+  uncertainties_de:
+    - "Wird in älteren Ratgebern/Presseartikeln oft noch fälschlich als geltend dargestellt."
+  review_needed_de: null
+  source:
+    name: "EEG 2023 § 9 (frühere 70 %-Regel, § 9 Abs. 2 EEG 2021, aufgehoben)"
+    url: "https://www.gesetze-im-internet.de/eeg_2014/__9.html"
+    type: law
+    legal_status: "repealed"
+    as_of: "2023-01-01"
+    retrieved: "2026-06-17"
+  tags: [veraltet, 70-prozent, historisch]
+
+- id: mastr-registrierung-pflicht
+  topic: pv
+  title: "Registration in the Marktstammdatenregister (MaStR, Core Energy Market Data Register) — mandatory within 1 month"
+  statement: >-
+    Every grid-connected PV system AND every battery storage system must, regardless of size, be
+    registered in the Marktstammdatenregister (MaStR) of the Bundesnetzagentur within
+    one month of commissioning. Without timely registration, loss of the feed-in tariff and
+    fines (up to EUR 50,000) may result.
+  status: valid
+  valid_from: "2019-01-31"
+  applies_if:
+    measure: [pv, battery]
+  value:
+    deadline_days: 30
+  uncertainties: []
+  review_needed: null
+  title_de: "Registrierung im Marktstammdatenregister (MaStR) — Pflicht binnen 1 Monat"
+  statement_de: >-
+    Jede netzgekoppelte PV-Anlage UND jeder Batteriespeicher müssen unabhängig von der Größe innerhalb
+    eines Monats nach Inbetriebnahme im Marktstammdatenregister (MaStR) der Bundesnetzagentur
+    registriert werden. Ohne fristgerechte Registrierung drohen Verlust der Einspeisevergütung und
+    Bußgelder (bis zu 50.000 €).
+  uncertainties_de: []
+  review_needed_de: null
+  source:
+    name: "Marktstammdatenregisterverordnung (MaStRV); Bundesnetzagentur MaStR"
+    url: "https://www.marktstammdatenregister.de/"
+    type: regulation
+    legal_status: "in force (current version)"
+    as_of: "2026-01-01"
+    retrieved: "2026-06-17"
+  tags: [mastr, registrierung, pflicht]
+
+- id: eeg-reform-2027-feedin-angekuendigt
+  topic: pv
+  title: "Announced/discussed: reform of support for small PV (EEG reform 2027)"
+  statement: >-
+    It is politically announced or under discussion to reform the fixed feed-in tariff for new small
+    PV systems (sometimes mentioned: up to 25 kWp) or to replace it with market-/system-oriented models
+    (e.g. direct marketing, CfD). This is NOT yet applicable law; existing commitments
+    for systems already commissioned are intended to remain unaffected.
+  status: announced
+  valid_from: "2027-01-01"
+  applies_if:
+    measure: [pv]
+  value: {}
+  uncertainties:
+    - "Political announcement / draft-bill stage; content, thresholds and timing open."
+    - "Press articles on this are often speculative — do not confuse with applicable law."
+  review_needed: "Re-check the state of legislation before making a planning decision."
+  title_de: "Angekündigt/diskutiert: Reform der Förderung für kleine PV (EEG-Reform 2027)"
+  statement_de: >-
+    Politisch angekündigt bzw. diskutiert wird, die feste Einspeisevergütung für neue kleine
+    PV-Anlagen (teils genannt: bis 25 kWp) zu reformieren oder durch markt-/systemorientierte Modelle
+    (z. B. Direktvermarktung, CfD) zu ersetzen. Dies ist noch NICHT geltendes Recht; bestehende Zusagen
+    für bereits in Betrieb genommene Anlagen sollen unberührt bleiben.
+  uncertainties_de:
+    - "Politische Ankündigung/Referentenentwurf-Stadium; Inhalt, Schwellen und Zeitpunkt offen."
+    - "Presseartikel hierzu sind oft spekulativ — nicht mit geltendem Recht verwechseln."
+  review_needed_de: "Gesetzgebungsstand vor Planungsentscheidung erneut prüfen."
+  source:
+    name: "Political announcement / draft bill (EEG reform 2027) — media coverage"
+    url: "https://www.bmwk.de/"
+    type: faq
+    legal_status: "announced / not in force"
+    as_of: "2026-05-01"
+    retrieved: "2026-06-17"
+  tags: [angekündigt, reform, direktvermarktung, spekulativ]
+
+- id: direktvermarktung-ab-25kw-angekuendigt
+  topic: pv
+  title: "Announced: gradual mandatory direct marketing from 25 kW"
+  statement: >-
+    As part of the Solarspitzengesetz / the EnWG amendment, the obligation to use direct marketing
+    (instead of a fixed feed-in tariff) is to be introduced gradually from 25 kW. For typical single-family-home
+    systems (mostly < 25 kWp) this is generally not relevant.
+  status: announced
+  valid_from: "2025-02-25"
+  applies_if:
+    measure: [pv]
+    capacity_kwp_min: 25
+  value:
+    threshold_kwp: 25
+  uncertainties:
+    - "The exact thresholds and timeline of the gradual introduction still need to be specified."
+  review_needed: "For systems ≥ 25 kWp, clarify the mandatory direct marketing and metering concept."
+  title_de: "Angekündigt: schrittweise Direktvermarktungspflicht ab 25 kW"
+  statement_de: >-
+    Im Zuge des Solarspitzengesetzes/der EnWG-Novelle ist vorgesehen, die Pflicht zur Direktvermarktung
+    (statt fester Einspeisevergütung) schrittweise ab 25 kW einzuführen. Für typische Einfamilienhaus-
+    Anlagen (meist < 25 kWp) ist dies in der Regel nicht relevant.
+  uncertainties_de:
+    - "Genaue Schwellen und Zeitplan der schrittweisen Einführung noch zu konkretisieren."
+  review_needed_de: "Für Anlagen ≥ 25 kWp Direktvermarktungspflicht und Messkonzept klären."
+  source:
+    name: "EEG 2023 § 21 (Pflicht zur Direktvermarktung); Solarspitzengesetz 2025"
+    url: "https://www.gesetze-im-internet.de/eeg_2014/__21.html"
+    type: law
+    legal_status: "being introduced"
+    as_of: "2025-02-25"
+    retrieved: "2026-06-17"
+  tags: [direktvermarktung, angekündigt]
