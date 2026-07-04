@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import type { ConfigureResponse } from "@/lib/types";
+import { useEffect, useState } from "react";
+import type { ConfigureResponse, PVConfigVariant } from "@/lib/types";
 import type { Lang } from "@/lib/i18n";
 
 function Stat({ k, val }: { k: string; val: string }) {
@@ -12,15 +12,16 @@ function Stat({ k, val }: { k: string; val: string }) {
   );
 }
 
-export function ConfigPanel({ data, lang }: { data: ConfigureResponse; lang: Lang }) {
+export function ConfigPanel({ data, lang, onSelect }: { data: ConfigureResponse; lang: Lang; onSelect?: (v: PVConfigVariant) => void }) {
   const de = lang === "de";
   const variants = data.variants;
   const [sel, setSel] = useState(
     () => (variants.find((v) => v.id === "recommended") ?? variants[variants.length - 1])?.id,
   );
+  const v = variants.find((x) => x.id === sel) ?? variants[0];
+  useEffect(() => { if (v) onSelect?.(v); }, [v, onSelect]);
   if (!variants.length)
     return <p className="text-sm text-slate-500">{de ? "Bitte Dachfläche oder geplante Leistung angeben." : "Please provide roof area or planned capacity."}</p>;
-  const v = variants.find((x) => x.id === sel) ?? variants[0];
   const fmt = (n: number) => n.toLocaleString(de ? "de-DE" : "en-US");
 
   return (

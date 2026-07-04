@@ -26,10 +26,14 @@ export const api = {
     post<ContextResponse>(`/context?lang=${lang}`, ctx),
   assess: (ctx: ProjectContext, lang: Lang = "de") =>
     post<AssessmentResponse>(`/assess?lang=${lang}`, ctx),
-  configure: (ctx: ProjectContext, lang: Lang = "de") =>
-    post<ConfigureResponse>(`/configure?lang=${lang}`, ctx),
-  answer: (question: string, context: ProjectContext, lang: Lang = "de") =>
-    post<AnswerResponse>("/answer", { question, context, lang }),
+  configure: (ctx: ProjectContext, lang: Lang = "de", opts?: { panelWp?: number; maxModules?: number }) => {
+    const p = new URLSearchParams({ lang });
+    if (opts?.panelWp) p.set("panel_wp", String(Math.round(opts.panelWp)));
+    if (opts?.maxModules) p.set("max_modules", String(Math.round(opts.maxModules)));
+    return post<ConfigureResponse>(`/configure?${p.toString()}`, ctx);
+  },
+  answer: (question: string, context: ProjectContext, lang: Lang = "de", history?: { role: string; text: string }[]) =>
+    post<AnswerResponse>("/answer", { question, context, lang, history: history ?? [] }),
   rules: async (): Promise<KBRule[]> => {
     const res = await fetch(`${BASE}/rules`);
     if (!res.ok) throw new Error(`/rules -> ${res.status}`);

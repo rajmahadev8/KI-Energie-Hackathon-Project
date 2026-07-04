@@ -9,6 +9,47 @@
 
 ---
 
+## Demo
+
+🎥 **Video walkthrough — *final vid: Energie Hack solar panel assistant*:** a full end-to-end run of
+the KI-PV-Assistent: entering project context, the technical initial assessment, the roof-panel
+configurator, and the source-based assessment with the grounded PV-Chat.
+
+<!--
+  NOTE: Markdown renderers (GitHub, VS Code preview, most viewers) strip <iframe> and block
+  JavaScript for security, so an inline YouTube *player* cannot render in a README. The standard
+  reliable approach is a clickable thumbnail that links out to YouTube — used below.
+-->
+<div align="center">
+  <a href="https://youtu.be/l-oEOvdLlZI" title="Watch the KI-PV-Assistent demo on YouTube">
+    <img src="https://img.youtube.com/vi/l-oEOvdLlZI/maxresdefault.jpg" alt="▶ Watch the KI-PV-Assistent demo on YouTube" width="860">
+  </a>
+  <br>
+  <em>▶ Click to watch the demo on YouTube</em>
+</div>
+
+### Screens
+
+**1. Dashboard & initial assessment** — the intake form feeds a deterministic technical assessment
+(solar score, **20 kWp**, **~14,000 kWh/year**) with an object-centric roof visualization that
+overlays the PV panels on the aerial/satellite image of the building.
+
+<img src="docs/assets/Screenshot%20from%202026-06-18%2014-00-04.png" alt="Dashboard with intake form, solar score, and roof visualization" width="900">
+
+**2. PV setup & configurator** — the roof-panel layout (per chosen variant) alongside the
+*PV-Konfiguration & Kostenabbildung*, comparing planning variants (e.g. **77 modules · 28.4 kWp ·
+~13,650 kWh**) with cost/yield figures.
+
+<img src="docs/assets/Screenshot%20from%202026-06-18%2014-00-15.png" alt="Roof panel layout and PV configuration with planning variants" width="900">
+
+**3. Source-based assessment + PV-Chat** — the *Quellenbasierte Einschätzung* checklist (building
+permit, grid registration, smart-meter obligation, Marktstammdatenregister, feed-in tariff) with the
+floating **PV-Chat** widget answering free-form questions from the same grounded, source-cited engine.
+
+<img src="docs/assets/Screenshot%20from%202026-06-18%2014-00-25.png" alt="Source-based checklist with grounded PV-Chat widget" width="900">
+
+---
+
 ## The Problem
 
 Anyone planning a PV system, a storage battery, a wallbox, or a heat pump faces contradictory
@@ -85,6 +126,12 @@ an LLM key, the backend delivers deterministic template answers; on network erro
   - Vision (roof analysis): `qwen/qwen3-vl-32b-instruct`
 - **Geodata:** Nominatim (geocoding) + postal-code→grid-operator table — **without a Google key**.
 - **Bilingual (DE/EN):** language toggle in the UI (default German); answers, rules, assessment, and the one-pager are all rendered in the selected language.
+- **Google Solar (optional):** with `GOOGLE_API_KEY` + `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, the app
+  auto-fills real roof azimuth/tilt/area/capacity from Google's `buildingInsights` and shows a
+  satellite panel overlay + 3D building view (panel count follows the chosen configurator variant).
+  Without keys it falls back to mock insights + the keyless Leaflet/OSM map. See [`docs/credits.md`](docs/credits.md).
+- **PV chatbot:** a floating chat widget for free-form questions, answered by the same grounded,
+  source-cited engine (no separate model). Integrated from a teammate repo (see credits).
 
 ---
 

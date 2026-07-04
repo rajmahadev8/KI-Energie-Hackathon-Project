@@ -1,18 +1,21 @@
 "use client";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { api } from "@/lib/api";
 import type {
-  AnswerResponse, AssessmentResponse, ClarifyingQuestion, ConfigureResponse, ProjectContext, Topic,
+  AnswerResponse, AssessmentResponse, BuildingInsights, ClarifyingQuestion, ConfigureResponse,
+  ProjectContext, PVConfigVariant, SolarLatLng, Topic,
 } from "@/lib/types";
 import { Card, ScoreGauge, StatusBadge, Tooltip } from "@/components/ui";
-import { HouseDiagram } from "@/components/HouseDiagram";
-import { MapView } from "@/components/MapView";
 import { AnswerView } from "@/components/AnswerView";
 import { SourcePanel } from "@/components/SourcePanel";
-import { RoofVisionPanel } from "@/components/RoofVisionPanel";
 import { ConfigPanel } from "@/components/ConfigPanel";
 import { ChatBot } from "@/components/ChatBot";
+import { fetchSolar, contextFromInsights } from "@/lib/solar";
 import { STR, localizeRule, type Lang } from "@/lib/i18n";
+
+const SolarMap = dynamic(() => import("@/components/SolarMap"), { ssr: false });
+const HAS_MAPS_KEY = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 // This version focuses on PV only; the other measures are shown but disabled.
 const MEASURES: { key: Topic; icon: string; enabled: boolean }[] = [
@@ -35,8 +38,19 @@ type Result = {
   assessment: AssessmentResponse;
   answer: AnswerResponse;
   config: ConfigureResponse;
+  insights: BuildingInsights | null;
+  solarLoc: SolarLatLng | null;
   lang: Lang;
 };
+
+/** Merge: user-entered fields win; Google-Solar-derived values only fill gaps. */
+function augment(base: ProjectContext, extra: Partial<ProjectContext>): ProjectContext {
+  const out = { ...base } as Record<string, unknown>;
+  Object.entries(extra).forEach(([k, v]) => {
+    if (out[k] == null && v != null) out[k] = v;
+  });
+  return out as unknown as ProjectContext;
+}
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("de");
@@ -45,6 +59,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [highlight, setHighlight] = useState<string | null>(null);
+  const [insights, setInsights] = useState<BuildingInsights | null>(null);
+  const [solarLoc, setSolarLoc] = useState<SolarLatLng | null>(null);
+  const [panelCount, setPanelCount] = useState(0);
   const t = STR[lang];
 
   function set<K extends keyof ProjectContext>(k: K, v: ProjectContext[K]) {
@@ -71,17 +88,59 @@ export default function Home() {
     setLoading(true); setError(null);
     try {
       const ctxRes = await api.buildContext(form, lang);
-      const context = ctxRes.context;
+      let context = ctxRes.context;
+
+      // Google Solar augment (real roof azimuth/tilt/area/kWp); user-entered values win.
+      let sInsights: BuildingInsights | null = null;
+      let sLoc: SolarLatLng | null = null;
+      try {
+        const solar = await fetchSolar({ address: context.address ?? form.address ?? undefined });
+        if (solar?.insights) {
+          sInsights = solar.insights;
+          sLoc = solar.location;
+          context = augment(context, contextFromInsights(solar.insights));
+        }
+      } catch { /* solar optional → keep keyless path */ }
+      setInsights(sInsights);
+      setSolarLoc(sLoc);
+      setForm((f) => augment(f, context)); // reflect auto-filled values in the form
+
       const question = t.analyzeQuestion(context.measures.join(", "));
+      // Align configurator variants to Google's real panels so the count matches the map overlay.
+      const solarOpts = sInsights
+        ? { panelWp: sInsights.solarPotential.panelCapacityWatts, maxModules: sInsights.solarPotential.maxArrayPanelsCount }
+        : undefined;
       const [assessment, answer, config] = await Promise.all([
-        api.assess(context, lang), api.answer(question, context, lang), api.configure(context, lang),
+        api.assess(context, lang), api.answer(question, context, lang), api.configure(context, lang, solarOpts),
       ]);
-      setResult({ context, clarifying: ctxRes.clarifying_questions, assessment, answer, config, lang });
+      setResult({ context, clarifying: ctxRes.clarifying_questions, assessment, answer, config, insights: sInsights, solarLoc: sLoc, lang });
     } catch (e) {
       setError(t.backendError(e));
     } finally {
       setLoading(false);
     }
+  }
+
+  // Click a roof on the Google map → refetch insights AND re-align the configurator/assessment to
+  // that exact building, so the variant counts (and the panels drawn) match the clicked roof.
+  async function pickRoof(la: number, ln: number) {
+    try {
+      const solar = await fetchSolar({ lat: la, lng: ln });
+      if (!solar?.insights) return;
+      const sIns = solar.insights;
+      setInsights(sIns);
+      setSolarLoc(solar.location);
+      const context = augment(result?.context ?? form, contextFromInsights(sIns));
+      setForm((f) => augment(f, context));
+      const solarOpts = {
+        panelWp: sIns.solarPotential.panelCapacityWatts,
+        maxModules: sIns.solarPotential.maxArrayPanelsCount,
+      };
+      const [assessment, config] = await Promise.all([
+        api.assess(context, lang), api.configure(context, lang, solarOpts),
+      ]);
+      setResult((prev) => (prev ? { ...prev, context, assessment, config, insights: sIns, solarLoc: solar.location } : prev));
+    } catch { /* ignore */ }
   }
 
   function onChip(id: string) {
@@ -98,8 +157,7 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
       <Header lang={lang} setLang={setLang} />
-      <ChatBot lang={lang} context={result?.context} onChip={onChip} />
-      <main className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 gap-5 p-4 lg:grid-cols-[380px_1fr]">
+      <main className="mx-auto grid w-full max-w-[1700px] flex-1 grid-cols-1 gap-5 p-4 lg:grid-cols-[330px_1fr]">
         {/* ---- Intake form ---- */}
         <div className="space-y-4">
           <Card title={t.form.captureProject}>
@@ -204,10 +262,13 @@ export default function Home() {
         <div className="space-y-4">
           {!result && <EmptyState lang={lang} />}
           {result && (
-            <Results result={result} highlight={highlight} onChip={onChip} onExport={exportOnePager} />
+            <Results result={result} highlight={highlight} onChip={onChip} onExport={exportOnePager}
+              insights={insights} solarLoc={solarLoc} panelCount={panelCount}
+              onVariant={(v) => setPanelCount(v.module_count)} onPickRoof={pickRoof} />
           )}
         </div>
       </main>
+      <ChatBot lang={lang} context={result?.context ?? form} onChip={onChip} />
     </div>
   );
 }
@@ -216,7 +277,7 @@ function Header({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
   const t = STR[lang];
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-[1700px] items-center gap-3 px-4 py-3">
         <div className="flex h-9 w-9 rotate-45 items-center justify-center rounded bg-teal-600" />
         <div>
           <h1 className="text-lg font-bold leading-none text-slate-800">{t.header.title}</h1>
@@ -267,8 +328,10 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-function Results({ result, highlight, onChip, onExport }: {
+function Results({ result, highlight, onChip, onExport, insights, solarLoc, panelCount, onVariant, onPickRoof }: {
   result: Result; highlight: string | null; onChip: (id: string) => void; onExport: () => void;
+  insights: BuildingInsights | null; solarLoc: SolarLatLng | null; panelCount: number;
+  onVariant: (v: PVConfigVariant) => void; onPickRoof: (lat: number, lng: number) => void;
 }) {
   const { context, clarifying, assessment, answer, config, lang } = result;
   const t = STR[lang];
@@ -296,9 +359,21 @@ function Results({ result, highlight, onChip, onExport }: {
         )}
       </Card>
 
+      {/* Roof visualization (Google Solar): satellite panel overlay + 3D — the main visual */}
+      {HAS_MAPS_KEY && insights && (
+        <Card title={lang === "de" ? "Dach-Visualisierung (Satellit / 3D)" : "Roof visualization (satellite / 3D)"}>
+          <SolarMap insights={insights} location={solarLoc} panelCount={panelCount} onPickPoint={onPickRoof} lang={lang} />
+          <p className="mt-2 text-xs text-slate-500">
+            {lang === "de"
+              ? "Panelzahl folgt der gewählten Konfiguration (Empfohlen / Dachmaximum)."
+              : "Panel count follows the selected configuration (Recommended / Roof maximum)."}
+          </p>
+        </Card>
+      )}
+
       {/* PV configuration + per-component cost estimate */}
       <Card title={lang === "de" ? "PV-Konfiguration & Kostenschätzung" : "PV configuration & cost estimate"}>
-        <ConfigPanel data={config} lang={lang} />
+        <ConfigPanel data={config} lang={lang} onSelect={onVariant} />
       </Card>
 
       {/* clarifying questions */}
@@ -344,35 +419,9 @@ function Results({ result, highlight, onChip, onExport }: {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card title={t.results.systemOverview}><HouseDiagram measures={context.measures} lang={lang} /></Card>
-        <div className="relative z-[4]"><Card title={t.results.location}><MapView lat={context.lat} lon={context.lon} label={context.grid_operator ?? undefined} /></Card></div>
-      </div>
-
       <Card title={t.results.sources}>
         <SourcePanel rules={answer.applicable_rules} highlight={highlight} lang={lang} />
       </Card>
-
-      <Card title={t.results.roofVision}><RoofVisionPanel lang={lang} /></Card>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card title={t.results.nextSteps}>
-          <ol className="list-inside list-decimal space-y-1 text-sm text-slate-700">
-            {assessment.next_steps.map((s, i) => <li key={i}>{s}</li>)}
-          </ol>
-          {assessment.open_points.length > 0 && (
-            <div className="mt-3 border-t border-slate-100 pt-2">
-              <p className="mb-1 text-xs font-semibold text-slate-500">{t.results.openPoints}</p>
-              <ul className="space-y-1 text-sm text-slate-600">{assessment.open_points.map((p, i) => <li key={i}>• {p}</li>)}</ul>
-            </div>
-          )}
-        </Card>
-        <Card title={t.results.installerQuestions}>
-          <ul className="space-y-1.5 text-sm text-slate-700">
-            {assessment.installer_questions.map((q, i) => <li key={i} className="flex gap-2"><span className="text-teal-500">?</span>{q}</li>)}
-          </ul>
-        </Card>
-      </div>
     </>
   );
 }

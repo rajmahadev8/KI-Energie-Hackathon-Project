@@ -76,16 +76,6 @@ export default function OnePager() {
         </div>
       </Section>
 
-      {a.open_points.length > 0 && (
-        <Section title={t.onePager.openPoints}>
-          <ul className="list-inside list-disc text-sm text-slate-600">{a.open_points.map((p, i) => <li key={i}>{p}</li>)}</ul>
-        </Section>
-      )}
-
-      <Section title={t.onePager.nextSteps}>
-        <ol className="list-inside list-decimal text-sm text-slate-600">{a.next_steps.map((s, i) => <li key={i}>{s}</li>)}</ol>
-      </Section>
-
       <p className="mt-6 border-t border-slate-200 pt-2 text-[10px] text-slate-400">
         {t.onePager.footer}
       </p>

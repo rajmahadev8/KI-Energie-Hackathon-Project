@@ -1,4 +1,5 @@
 "use client";
+// Floating PV chat widget. Sends house context + recent turns to the grounded /answer agent.
 import { useEffect, useRef, useState } from "react";
 import type { Citation, ProjectContext } from "@/lib/types";
 import { api } from "@/lib/api";
@@ -59,9 +60,7 @@ export function ChatBot({
 
   function handleChip(id: string) {
     if (onChip) {
-      // Close/minimize chat so the main sources panel is visible, then scroll.
       setOpen(false);
-      // Small delay so the panel re-renders before scrolling.
       setTimeout(() => {
         onChip(id);
         document.getElementById(`src-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -70,7 +69,6 @@ export function ChatBot({
   }
 
   function handleSourceClick(citation: Citation) {
-    // If this rule exists in the main sources panel, scroll there.
     const el = document.getElementById(`src-${citation.rule_id}`);
     if (el && onChip) {
       setOpen(false);
@@ -91,25 +89,21 @@ export function ChatBot({
     setLoading(true);
     try {
       const ctx = context ?? DEFAULT_CTX;
-      const res = await api.answer(q, ctx, lang);
+      const history = messages.slice(-8).map((message) => ({
+        role: message.role === "bot" ? "assistant" : "user",
+        text: message.text,
+      }));
+      const res = await api.answer(q, ctx, lang, history);
       setMessages((m) => [
         ...m,
-        {
-          role: "bot",
-          text: res.answer,
-          citations: res.citations,
-          out_of_scope: res.out_of_scope,
-        },
+        { role: "bot", text: res.answer, citations: res.citations, out_of_scope: res.out_of_scope },
       ]);
     } catch {
       setMessages((m) => [
         ...m,
         {
           role: "bot",
-          text:
-            lang === "de"
-              ? "Fehler – Backend nicht erreichbar."
-              : "Error – backend not reachable.",
+          text: lang === "de" ? "Fehler – Backend nicht erreichbar." : "Error – backend not reachable.",
           error: true,
         },
       ]);
@@ -124,18 +118,18 @@ export function ChatBot({
   const scrollHint = lang === "de" ? "→ Quelle anzeigen" : "→ Show source";
   const outOfScopeMsg =
     lang === "de"
-      ? "Diese Frage liegt außerhalb meines Themenbereichs (PV-Anlagen, Speicher, Wallbox, Wärmepumpe in Deutschland). Bitte stellen Sie eine Frage zu einem dieser Themen."
-      : "This question is outside my topic area (PV systems, battery storage, wallbox, heat pump in Germany). Please ask about one of these topics.";
+      ? "Diese Frage liegt außerhalb meines Themenbereichs (PV-Anlagen in Deutschland). Bitte stellen Sie eine Frage zu PV."
+      : "This question is outside my topic area (PV systems in Germany). Please ask about PV.";
   const resetLabel = lang === "de" ? "Verlauf löschen" : "Clear history";
+  const ctx = context ?? DEFAULT_CTX;
+  const contextSummary = summarizeContext(ctx, lang);
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
       {open && (
-        <div className="flex h-[560px] w-[380px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-          {/* header */}
+        <div className="flex h-[560px] w-[380px] max-w-[90vw] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
           <div className="flex items-center justify-between bg-teal-600 px-4 py-2.5">
             <div className="flex items-center gap-2">
-              {/* chat icon */}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
@@ -143,50 +137,38 @@ export function ChatBot({
               <span className="rounded-full bg-teal-500 px-1.5 py-0.5 text-[9px] font-bold text-teal-100">AI</span>
             </div>
             <div className="flex items-center gap-1">
-              {/* reset button */}
               {messages.length > 0 && (
-                <button
-                  onClick={() => setMessages([])}
-                  title={resetLabel}
-                  className="rounded-full p-1 text-teal-100 transition hover:bg-teal-700 hover:text-white"
-                  aria-label={resetLabel}
-                >
-                  {/* rotate-left / refresh icon */}
+                <button onClick={() => setMessages([])} title={resetLabel}
+                  className="rounded-full p-1 text-teal-100 transition hover:bg-teal-700 hover:text-white" aria-label={resetLabel}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                     <path d="M3 3v5h5" />
                   </svg>
                 </button>
               )}
-              {/* minimize button */}
-              <button
-                onClick={() => setOpen(false)}
-                className="rounded-full p-1 text-teal-100 transition hover:bg-teal-700 hover:text-white"
-                aria-label="Minimize chat"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="4" y="11" width="16" height="2" rx="1" />
-                </svg>
+              <button onClick={() => setOpen(false)} className="rounded-full p-1 text-teal-100 transition hover:bg-teal-700 hover:text-white" aria-label="Minimize chat">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="11" width="16" height="2" rx="1" /></svg>
               </button>
             </div>
           </div>
 
-          {/* messages */}
           <div className="flex-1 space-y-3 overflow-y-auto p-3">
             {messages.length === 0 && (
               <div className="space-y-3 pt-1">
                 <p className="text-center text-xs text-slate-500">
                   {lang === "de"
-                    ? "Fragen Sie mich zu PV-Regeln, Vergütung und Technik in Deutschland."
-                    : "Ask me about PV rules, tariffs and technology in Germany."}
+                    ? "Fragen Sie mich zu Ihrem PV-Projekt. Ich nutze den aktuellen Haus-Kontext und Quellen."
+                    : "Ask me about your PV project. I use the current house context and sources."}
                 </p>
+                {contextSummary ? (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed text-slate-500">
+                    <span className="font-semibold text-slate-600">{lang === "de" ? "Kontext:" : "Context:"}</span> {contextSummary}
+                  </div>
+                ) : null}
                 <div className="space-y-1.5">
                   {SUGGESTIONS[lang].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => send(s)}
-                      className="w-full rounded-xl border border-teal-100 bg-teal-50 px-3 py-2 text-left text-xs text-teal-800 transition hover:bg-teal-100"
-                    >
+                    <button key={s} onClick={() => send(s)}
+                      className="w-full rounded-xl border border-teal-100 bg-teal-50 px-3 py-2 text-left text-xs text-teal-800 transition hover:bg-teal-100">
                       {s}
                     </button>
                   ))}
@@ -196,46 +178,25 @@ export function ChatBot({
 
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[92%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
-                    m.role === "user"
-                      ? "rounded-br-sm bg-teal-600 text-white"
-                      : m.error
-                      ? "rounded-bl-sm border border-rose-200 bg-rose-50 text-rose-800"
-                      : m.out_of_scope
-                      ? "rounded-bl-sm border border-amber-200 bg-amber-50 text-amber-800"
-                      : "rounded-bl-sm border border-slate-200 bg-slate-50 text-slate-700"
-                  }`}
-                >
+                <div className={`max-w-[92%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
+                  m.role === "user" ? "rounded-br-sm bg-teal-600 text-white"
+                  : m.error ? "rounded-bl-sm border border-rose-200 bg-rose-50 text-rose-800"
+                  : m.out_of_scope ? "rounded-bl-sm border border-amber-200 bg-amber-50 text-amber-800"
+                  : "rounded-bl-sm border border-slate-200 bg-slate-50 text-slate-700"}`}>
                   {m.role === "user" || m.error ? (
                     <span>{m.text}</span>
                   ) : m.out_of_scope ? (
-                    <div className="flex items-start gap-2">
-                      <span className="mt-0.5 text-base">🚫</span>
-                      <span className="text-xs leading-relaxed">{outOfScopeMsg}</span>
-                    </div>
+                    <div className="flex items-start gap-2"><span className="mt-0.5 text-base">🚫</span><span className="text-xs leading-relaxed">{outOfScopeMsg}</span></div>
                   ) : (
                     <>
-                      <AnswerView
-                        answer={m.text}
-                        citations={m.citations ?? []}
-                        onChip={handleChip}
-                        lang={lang}
-                      />
+                      <AnswerView answer={m.text} citations={m.citations ?? []} onChip={handleChip} lang={lang} />
                       {m.citations && m.citations.length > 0 && (
                         <div className="mt-2 border-t border-slate-200 pt-2">
-                          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                            {sourcesLabel}
-                          </p>
+                          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">{sourcesLabel}</p>
                           <div className="flex flex-col gap-1.5">
                             {m.citations.map((c) => (
-                              <SourceLine
-                                key={c.rule_id}
-                                citation={c}
-                                scrollHint={scrollHint}
-                                hasMainPanel={!!document.getElementById(`src-${c.rule_id}`)}
-                                onClick={() => handleSourceClick(c)}
-                              />
+                              <SourceLine key={c.rule_id} citation={c} scrollHint={scrollHint}
+                                hasMainPanel={!!document.getElementById(`src-${c.rule_id}`)} onClick={() => handleSourceClick(c)} />
                             ))}
                           </div>
                         </div>
@@ -260,47 +221,27 @@ export function ChatBot({
             <div ref={bottomRef} />
           </div>
 
-          {/* input bar */}
           <div className="flex gap-2 border-t border-slate-200 p-2.5">
-            <input
-              ref={inputRef}
-              className="inp flex-1 text-xs"
-              placeholder={placeholder}
-              value={input}
+            <input ref={inputRef} className="inp flex-1 text-xs" placeholder={placeholder} value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  send();
-                }
-              }}
-              disabled={loading}
-            />
-            <button
-              onClick={() => send()}
-              disabled={loading || !input.trim()}
-              className="flex items-center justify-center rounded-lg bg-teal-600 px-3 py-1.5 text-white transition hover:bg-teal-700 disabled:opacity-40"
-              aria-label="Send"
-            >
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+              disabled={loading} />
+            <button onClick={() => send()} disabled={loading || !input.trim()}
+              className="flex items-center justify-center rounded-lg bg-teal-600 px-3 py-1.5 text-white transition hover:bg-teal-700 disabled:opacity-40" aria-label="Send">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13" />
-                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
               </svg>
             </button>
           </div>
         </div>
       )}
 
-      {/* toggle button */}
-      <button
-        onClick={() => setOpen((v) => !v)}
+      <button onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 rounded-full bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-teal-700"
-        aria-label={open ? "Close chat" : "Open chat"}
-      >
+        aria-label={open ? "Close chat" : "Open chat"}>
         {open ? (
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
+            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         ) : (
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -313,53 +254,32 @@ export function ChatBot({
   );
 }
 
+function summarizeContext(context: ProjectContext, lang: Lang) {
+  const parts = [
+    context.address || context.plz ? `${context.address || context.plz}` : null,
+    context.state ? `${lang === "de" ? "Bundesland" : "State"}: ${context.state}` : null,
+    context.grid_operator ? `${lang === "de" ? "Netz" : "Grid"}: ${context.grid_operator}` : null,
+    context.roof_area_m2 ? `${Math.round(context.roof_area_m2)} m² roof` : null,
+    context.planned_pv_kwp ? `${context.planned_pv_kwp} kWp PV` : null,
+    context.annual_consumption_kwh ? `${Math.round(context.annual_consumption_kwh).toLocaleString("de-DE")} kWh/a` : null,
+  ].filter(Boolean);
+
+  return parts.join(" · ");
+}
+
 function SourceLine({
-  citation,
-  scrollHint,
-  hasMainPanel,
-  onClick,
-}: {
-  citation: Citation;
-  scrollHint: string;
-  hasMainPanel: boolean;
-  onClick: () => void;
-}) {
-  const dot =
-    citation.status === "valid"
-      ? "bg-emerald-500"
-      : citation.status === "announced"
-      ? "bg-amber-500"
-      : "bg-rose-400";
-
+  citation, scrollHint, hasMainPanel, onClick,
+}: { citation: Citation; scrollHint: string; hasMainPanel: boolean; onClick: () => void }) {
+  const dot = citation.status === "valid" ? "bg-emerald-500" : citation.status === "announced" ? "bg-amber-500" : "bg-rose-400";
   const isClickable = hasMainPanel || !!citation.url;
-
   return (
-    <button
-      onClick={onClick}
-      disabled={!isClickable}
-      className={`flex w-full items-start gap-1.5 rounded-lg px-2 py-1.5 text-left text-[10px] transition ${
-        isClickable
-          ? "hover:bg-teal-50 cursor-pointer"
-          : "cursor-default"
-      }`}
-      title={hasMainPanel ? scrollHint : citation.url ?? undefined}
-    >
+    <button onClick={onClick} disabled={!isClickable}
+      className={`flex w-full items-start gap-1.5 rounded-lg px-2 py-1.5 text-left text-[10px] transition ${isClickable ? "hover:bg-teal-50 cursor-pointer" : "cursor-default"}`}
+      title={hasMainPanel ? scrollHint : citation.url ?? undefined}>
       <span className={`mt-0.5 h-1.5 w-1.5 flex-none rounded-full ${dot}`} />
       <div className="min-w-0 flex-1">
-        <span
-          className={`block truncate font-medium ${
-            isClickable ? "text-teal-700 underline decoration-dotted" : "text-slate-600"
-          }`}
-        >
-          {citation.source_name}
-        </span>
-        <span className="text-slate-400">
-          {citation.as_of ? `${citation.as_of} · ` : ""}
-          {citation.rule_id}
-          {hasMainPanel && (
-            <span className="ml-1 text-teal-500">{scrollHint}</span>
-          )}
-        </span>
+        <span className={`block truncate font-medium ${isClickable ? "text-teal-700 underline decoration-dotted" : "text-slate-600"}`}>{citation.source_name}</span>
+        <span className="text-slate-400">{citation.as_of ? `${citation.as_of} · ` : ""}{citation.rule_id}{hasMainPanel && <span className="ml-1 text-teal-500">{scrollHint}</span>}</span>
       </div>
     </button>
   );

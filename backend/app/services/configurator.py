@@ -94,11 +94,20 @@ def _notes(kwp: float, ctx: ProjectContext, lang: str) -> list[str]:
     return n
 
 
-def configure(ctx: ProjectContext, lang: str = "en") -> ConfigureResponse:
+def configure(ctx: ProjectContext, lang: str = "en",
+              panel_wp: int | None = None, max_modules: int | None = None) -> ConfigureResponse:
+    """When `panel_wp` / `max_modules` are given (e.g. from Google Solar building insights), the
+    variants are aligned to the real panel capacity and the real number of roof panel positions, so
+    each variant's module count maps 1:1 to the panels drawn on the satellite/3D map."""
     de = norm(lang) == "de"
-    max_modules = _roof_max_modules(ctx)
+    wp = panel_wp if (panel_wp and panel_wp > 0) else WP
+
+    def m2k(n: int) -> float:
+        return round(n * wp / 1000, 2)
+
+    max_mods = max_modules if (max_modules and max_modules > 0) else _roof_max_modules(ctx)
     resp = ConfigureResponse(
-        max_modules=max_modules, max_kwp=_modules_to_kwp(max_modules), module_wp=WP,
+        max_modules=max_mods, max_kwp=m2k(max_mods), module_wp=wp,
         price_basis=t(lang,
                       f"Indicative 2026 German price ranges (per component), {_CAT['as_of']}.",
                       f"Indikative Preisspannen 2026 (DE, je Komponente), Stand {_CAT['as_of']}."),
@@ -108,7 +117,7 @@ def configure(ctx: ProjectContext, lang: str = "en") -> ConfigureResponse:
                      "Grobe Schätzung, KEIN verbindliches Angebot und keine Wirtschaftlichkeitsberechnung. "
                      "Tatsächliche Preise hängen von Produkt, Dach und Fachbetrieb ab."),
     )
-    if max_modules <= 0:
+    if max_mods <= 0:
         return resp
 
     yf = specific_yield(ctx.state, ctx.roof_azimuth_deg, ctx.roof_tilt_deg)
@@ -117,24 +126,24 @@ def configure(ctx: ProjectContext, lang: str = "en") -> ConfigureResponse:
     targets: dict[int, tuple[str, str, str]] = {}
     cons = ctx.annual_consumption_kwh
     if cons:  # compact ≈ 1 kWp per 1000 kWh
-        compact = min(max_modules, max(4, round((cons / 1000) * 1000 / WP)))
+        compact = min(max_mods, max(4, round((cons / 1000) * 1000 / wp)))
         targets.setdefault(compact, ("compact", t(lang, "Compact (demand-oriented)", "Kompakt (bedarfsnah)"),
                                      t(lang, "Roughly sized to your consumption.", "Grob an Ihrem Verbrauch orientiert.")))
-    recommended = max(1, min(max_modules, round(max_modules * 0.9)))
+    recommended = max(1, min(max_mods, round(max_mods * 0.9)))
     targets.setdefault(recommended, ("recommended", t(lang, "Recommended", "Empfohlen"),
                                      t(lang, "Uses most of the roof while keeping margins.",
                                        "Nutzt den Großteil des Daches mit Sicherheitsabständen.")))
-    targets.setdefault(max_modules, ("roof_max", t(lang, "Roof maximum", "Dachmaximum"),
-                                     t(lang, "Maximum modules that fit on the roof.",
-                                       "Maximale Modulzahl, die auf das Dach passt.")))
+    targets.setdefault(max_mods, ("roof_max", t(lang, "Roof maximum", "Dachmaximum"),
+                                  t(lang, "Maximum modules that fit on the roof.",
+                                    "Maximale Modulzahl, die auf das Dach passt.")))
     if ctx.planned_pv_kwp:
-        pm = max(1, min(max_modules, round(ctx.planned_pv_kwp * 1000 / WP)))
+        pm = max(1, min(max_mods, round(ctx.planned_pv_kwp * 1000 / wp)))
         targets.setdefault(pm, ("planned", t(lang, "Your plan", "Ihre Planung"),
                                 t(lang, "Based on the capacity you entered.", "Basierend auf Ihrer Eingabe.")))
 
     for count in sorted(targets):
         vid, name, desc = targets[count]
-        kwp = _modules_to_kwp(count)
+        kwp = m2k(count)
         yield_kwh = round(kwp * yf)
         comps, lo, hi = _components_for(kwp, count, lang)
         resp.variants.append(PVConfigVariant(

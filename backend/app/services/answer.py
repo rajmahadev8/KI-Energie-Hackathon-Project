@@ -13,6 +13,7 @@ from pathlib import Path
 
 from app.i18n import DISCLAIMER, norm, t
 from app.models import AnswerResponse, Citation, KBRule, ProjectContext
+from app.services.langchain_agent import AgentUnavailable, cited_doc_names, run_agent
 from app.services.llm import LLMUnavailable, chat
 from app.services.retrieval import generate_clarifying_questions, retrieve
 
@@ -23,25 +24,13 @@ def _system_prompt(lang: str) -> str:
     language = "German" if norm(lang) == "de" else "English"
     return (
         "You are a source-based assistant for decentralized energy projects (PV, battery storage, "
-        "wallbox, heat pump) in Germany. "
-        "\n\nOUT-OF-SCOPE RULE (set out_of_scope=true ONLY in this case): "
-        "If the question has absolutely nothing to do with energy, solar power, PV systems, "
-        "battery storage, wallbox, heat pump, electricity grid, metering, energy law, or renewable "
-        "energy in Germany — for example pure math (2+2), general geography, cooking, sports — "
-        "then set out_of_scope=true and return an empty answer and empty used_rule_ids. "
-        "Any question that touches PV sizing, roof area, yield, cost, regulation, installation, "
-        "feed-in, grid connection, or energy consumption is IN scope — answer it. "
-        "\n\nFOR IN-SCOPE QUESTIONS: Answer using ONLY the RULES provided below as your primary "
-        "source. Do not invent regulatory facts or tariff numbers. "
-        "If the rules provide relevant background (e.g. capacity thresholds, sizing rules), use "
-        "them. For technical estimates not directly in the rules (e.g. modules per m²), you may "
-        "provide a standard rule-of-thumb and clearly label it as an estimate. "
-        "Cite every statement drawn from a rule with its rule ID in square brackets, "
-        "e.g. [eeg-feedin-teileinspeisung-2026h1]. Cite ONLY rules you actually used — list those "
-        "IDs in used_rule_ids. If no rule covers the question, answer with general domain knowledge "
-        "and set used_rule_ids to []. "
-        "Clearly distinguish between currently valid, announced and outdated rules. "
-        f"Write the answer in {language}, understandable for laypeople. Answer as JSON: "
+        "wallbox, heat pump) in Germany. You answer the question EXCLUSIVELY based on the rules "
+        "(RULES) provided below. Do not invent facts and do NOT use any external knowledge. If the "
+        "rules do not cover the question, say so clearly and recommend a review by a specialist "
+        "company (set out_of_scope=true). Cite every key statement with the rule ID in square "
+        "brackets, e.g. [eeg-feedin-teileinspeisung-2026h1]. Clearly distinguish between currently "
+        f"valid, announced and outdated rules. Write the answer in {language}, understandable for "
+        "laypeople too. Answer as JSON: "
         '{"answer": str, "used_rule_ids": [str], "out_of_scope": bool}.'
     )
 
@@ -98,6 +87,19 @@ def _citations(rules: list[KBRule]) -> list[Citation]:
     ]
 
 
+def _doc_citations(names: set[str]) -> list[Citation]:
+    return [
+        Citation(
+            rule_id=f"doc:{name}",
+            source_name=f"Local docs/{name}",
+            url=None,
+            status="valid",
+            as_of="local repository",
+        )
+        for name in sorted(names)
+    ]
+
+
 def _template_answer(ctx: ProjectContext, buckets: dict[str, list[KBRule]], lang: str) -> str:
     out: list[str] = []
     if buckets["applicable"]:
@@ -122,57 +124,65 @@ def _template_answer(ctx: ProjectContext, buckets: dict[str, list[KBRule]], lang
     return "\n".join(out)
 
 
-def answer_question(question: str, ctx: ProjectContext, rules: list[KBRule], lang: str = "en") -> AnswerResponse:
+def answer_question(
+    question: str,
+    ctx: ProjectContext,
+    rules: list[KBRule],
+    lang: str = "en",
+    history: list[dict[str, str]] | None = None,
+) -> AnswerResponse:
     buckets = retrieve(rules, ctx)
     surfaced = _all_surfaced(buckets)
-    surfaced_by_id = {r.id: r for r in surfaced}
     clarifying = generate_clarifying_questions(ctx, lang)
     out_of_scope = not surfaced
 
     answer_text = ""
     cached = False
-    cited_rules: list[KBRule] = []
-
     if surfaced:
         try:
-            user = (
-                f"QUESTION: {question}\n\n"
-                f"PROJECT CONTEXT: {_summarize_context(ctx, lang)}\n\n"
-                f"RULES:\n{_serialize_rules(buckets, lang)}"
-            )
-            raw = chat(_system_prompt(lang), user, json_mode=True)
-            parsed = json.loads(raw)
-            answer_text = parsed.get("answer", "").strip()
-            out_of_scope = bool(parsed.get("out_of_scope", False))
-            # Only surface rules the LLM actually cited — preserving surfaced order.
-            used_ids: list[str] = parsed.get("used_rule_ids") or []
-            cited_rules = [surfaced_by_id[rid] for rid in used_ids if rid in surfaced_by_id]
-            # Fallback: if LLM returned no used_ids but answered, use all surfaced rules.
-            if not cited_rules and not out_of_scope and answer_text:
-                cited_rules = surfaced
-        except (LLMUnavailable, json.JSONDecodeError, KeyError):
-            cached_hit = _load_cached(question, lang)
-            if cached_hit:
-                answer_text, cached = cached_hit, True
-            else:
-                answer_text = _template_answer(ctx, buckets, lang)
-            cited_rules = surfaced
-    else:
-        answer_text = _template_answer(ctx, buckets, lang)
+            answer_text = run_agent(question, ctx, surfaced, lang, history or [])
+        except AgentUnavailable:
+            answer_text, next_out_of_scope = _legacy_llm_answer(question, ctx, buckets, lang)
+            out_of_scope = next_out_of_scope if answer_text else out_of_scope
 
-    # When out_of_scope, return no citations (nothing was actually used).
-    if out_of_scope:
-        cited_rules = []
+            if not answer_text:
+                cached_hit = _load_cached(question, lang)
+                if cached_hit:
+                    answer_text, cached = cached_hit, True
+                else:
+                    answer_text = _template_answer(ctx, buckets, lang)
+    else:
+        try:
+            answer_text = run_agent(question, ctx, [], lang, history or [])
+            out_of_scope = False
+        except AgentUnavailable:
+            answer_text = _template_answer(ctx, buckets, lang)
+
+    doc_citations = _doc_citations(cited_doc_names(answer_text))
 
     return AnswerResponse(
         answer=answer_text or _template_answer(ctx, buckets, lang),
-        citations=_citations(cited_rules),
+        citations=[*_citations(surfaced), *doc_citations],
         applicable_rules=surfaced,
         clarifying_questions=clarifying,
         out_of_scope=out_of_scope,
         cached=cached,
         disclaimer=DISCLAIMER[norm(lang)],
     )
+
+
+def _legacy_llm_answer(question: str, ctx: ProjectContext, buckets: dict[str, list[KBRule]], lang: str) -> tuple[str, bool]:
+    try:
+        user = (
+            f"QUESTION: {question}\n\n"
+            f"PROJECT CONTEXT: {_summarize_context(ctx, lang)}\n\n"
+            f"RULES:\n{_serialize_rules(buckets, lang)}"
+        )
+        raw = chat(_system_prompt(lang), user, json_mode=True)
+        parsed = json.loads(raw)
+        return parsed.get("answer", "").strip(), bool(parsed.get("out_of_scope", False))
+    except (LLMUnavailable, json.JSONDecodeError, KeyError):
+        return "", False
 
 
 def _load_cached(question: str, lang: str) -> str | None:

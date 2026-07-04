@@ -12,7 +12,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.config import settings
 from app.knowledge.loader import load_rules
@@ -67,6 +67,7 @@ class AnswerRequest(BaseModel):
     question: str
     context: ProjectContext
     lang: str = "en"
+    history: list[dict[str, str]] = Field(default_factory=list)
 
 
 # --- routes -----------------------------------------------------------------
@@ -106,14 +107,16 @@ def assessment(ctx: ProjectContext, lang: str = "en") -> AssessmentResponse:
 
 
 @app.post("/configure", response_model=ConfigureResponse)
-def configure_pv(ctx: ProjectContext, lang: str = "en") -> ConfigureResponse:
-    """PV configuration variants + per-component indicative cost (PV-core only)."""
-    return configure(ctx, lang)
+def configure_pv(ctx: ProjectContext, lang: str = "en",
+                 panel_wp: int | None = None, max_modules: int | None = None) -> ConfigureResponse:
+    """PV configuration variants + per-component indicative cost (PV-core only).
+    Optional panel_wp / max_modules align the variants to Google Solar's real panels."""
+    return configure(ctx, lang, panel_wp, max_modules)
 
 
 @app.post("/answer", response_model=AnswerResponse)
 def answer(req: AnswerRequest) -> AnswerResponse:
-    res = answer_question(req.question, req.context, rules(), req.lang)
+    res = answer_question(req.question, req.context, rules(), req.lang, req.history)
     try:
         save_answer(req.question, req.context, req.lang, res)  # one timestamped log file per answer
     except Exception:  # logging must never break the response

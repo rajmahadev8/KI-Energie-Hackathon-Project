@@ -90,6 +90,50 @@ export interface AssessmentResponse {
 
 export interface ContextResponse { context: ProjectContext; clarifying_questions: ClarifyingQuestion[]; }
 
+// --- Google Solar (building insights) ---
+export interface SolarLatLng { latitude: number; longitude: number; }
+export interface RoofSegment {
+  pitchDegrees: number;
+  azimuthDegrees: number;
+  center: SolarLatLng;
+  planeHeightAtCenterMeters: number;
+}
+export interface SolarPanel {
+  center: SolarLatLng;
+  orientation: "LANDSCAPE" | "PORTRAIT";
+  segmentIndex: number;
+  yearlyEnergyDcKwh: number;
+}
+export interface BuildingInsights {
+  center: SolarLatLng;
+  boundingBox?: { sw: SolarLatLng; ne: SolarLatLng };
+  postalCode?: string;
+  administrativeArea?: string;
+  regionCode?: string;
+  imageryQuality?: "HIGH" | "MEDIUM" | "BASE";
+  solarPotential: {
+    maxArrayPanelsCount: number;
+    panelCapacityWatts: number;
+    panelHeightMeters: number;
+    panelWidthMeters: number;
+    maxSunshineHoursPerYear: number;
+    maxArrayAreaMeters2: number;
+    wholeRoofStats?: { areaMeters2: number; sunshineQuantiles: number[]; groundAreaMeters2: number };
+    roofSegmentStats: RoofSegment[];
+    solarPanels: SolarPanel[];
+    solarPanelConfigs?: { panelsCount: number; yearlyEnergyDcKwh: number }[];
+  };
+}
+export interface SolarResponse {
+  address: string;
+  formattedAddress: string;
+  location: SolarLatLng;
+  insights: BuildingInsights | null;
+  solarError?: string;
+  mock: boolean;
+  error?: string;
+}
+
 export interface PVComponentLine {
   key: string;
   label: string;
